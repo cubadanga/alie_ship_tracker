@@ -9,7 +9,7 @@ __pycache__/
 *.xlsx
 *.exe
 __pycache__/
-save.ini
+
 
 # Distribution / packaging
 .Python
@@ -132,6 +132,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+/save.ini
 
 # Spyder project settings
 .spyderproject
