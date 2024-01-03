@@ -9,7 +9,7 @@ __pycache__/
 *.xlsx
 *.exe
 __pycache__/
-
+save.ini
 
 # Distribution / packaging
 .Python
