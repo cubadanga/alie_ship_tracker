@@ -240,21 +240,48 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         
         else:
-            input_id = self.driver.find_element(By.ID,'fm-login-id')
-            input_id.click()
-            pyautogui.write(alie_ID, interval=0.03)
-            pyautogui.press('tab')
-            time.sleep(self.random_sec)
-            
-            input_pass = self.driver.find_element(By.ID,'fm-login-password')
-            input_pass.click()
-            pyautogui.write(alie_PW, interval=0.02)
-            time.sleep(self.random_sec)
-            
-            btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
-            btn_signin.click()
-            time.sleep(self.random_sec)
+            if WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'comet-tabs-nav'))):
+                    
+                input_id = self.driver.find_element(By.ID,'fm-login-id')
+                input_id.click()
+                pyautogui.write(alie_ID, interval=0.03)
+                pyautogui.press('tab')
+                time.sleep(self.random_sec)
+                
+                input_pass = self.driver.find_element(By.ID,'fm-login-password')
+                input_pass.click()
+                pyautogui.write(alie_PW, interval=0.02)
+                time.sleep(self.random_sec)
+                
+                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+                btn_signin.click()
+                time.sleep(self.random_sec)           
+          
+            elif WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'nfm-multiple-container'))): 
+                
+                print("===============================================")
+                pyautogui.press('tab')
+                time.sleep(0.5)
+                pyautogui.press('tab')  
+                pyautogui.write(alie_ID, interval=0.03)
+                time.sleep(self.random_sec)
+                pyautogui.press('tab')
+                pyautogui.press('enter')
+                time.sleep(self.random_sec)
+                pyautogui.press('tab')
+                time.sleep(self.random_sec)
+                pyautogui.press('tab')
+                pyautogui.write(alie_PW, interval=0.02)
+                pyautogui.press('tab')
+                time.sleep(self.random_sec)
+                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+                btn_signin.click()
+            else:
+                print('못찾음')
             return
+        
         
     def shipped_parcing(self):
         self.driver.implicitly_wait(30)
