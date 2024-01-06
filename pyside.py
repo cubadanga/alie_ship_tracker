@@ -45,7 +45,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     list_tracking = []
     list_shipmemo = []
     update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 한다.
-    chk_state = int
     
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -86,10 +85,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.write_ini(self.ini_filename, self.section_name, self.key_username, alie_ID)
         self.write_ini(self.ini_filename, self.section_name, self.key_password, alie_PW)
         
-        self.filter_state()
         
-        df = pd.DataFrame()
-        df = self.read_files(exUrl, self.chk_state)
+        df_origin = pd.DataFrame()
+        df_origin = self.read_files(exUrl)
+        
+        #df = df_origin
+        target = ['SLX', '기타택배', '직접전달']
+        #df = df_origin.loc[df_origin['택배사'] == 'SLX' or df_origin['택배사'] == '기타택배' or df_origin['택배사'] == '직접전달']
+        df = df_origin.loc[df_origin['택배사'].isin(target)]
+        print(df)
+        print('필터링된 df')
+        
         
         df_shiptrack = pd.DataFrame()
         df_shiptrack = df[['주문고유코드','해외주문번호','수령자']]
@@ -139,16 +145,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QCoreApplication.processEvents()
         self.driver.quit()
     
-    @Slot(int)
-    def filter_state(self):
-        if self.chkBox_filter.isChecked():
-            print('체크박스 상태: 체크됨')
-            self.chk_state = 0
-            
-        else:
-            print('체크박스 상태: 해제됨')
-            self.chk_state = 1
-            
     def read_ini(self):
         ini_filename = './save.ini'
         section_name = 'Section1'
@@ -206,19 +202,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         with open(filename, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
         
-    def read_files(self,exUrl,chk_state):
+    def read_files(self,exUrl):
         tMessage = "엑셀파일 읽기 시작"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         df = pd.read_excel(exUrl,header=0,dtype={'수령자': str, '해외주문번호': str, '주문고유코드': str})
-        
-        if chk_state == 0:
-            target = ['SLX택배', '기타택배', '직접전달']
-            df_true = df.loc[df['택배사'].isin(target)]
-            return df_true
-        
-        else:
-            return df
+        return df    
          
     def filedialog_open(self):
         fname=QFileDialog.getOpenFileName(self,'','',"xlsx(*.xlsx)")
@@ -240,48 +229,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         
         else:
-            if WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'comet-tabs-nav'))):
-                    
-                input_id = self.driver.find_element(By.ID,'fm-login-id')
-                input_id.click()
-                pyautogui.write(alie_ID, interval=0.03)
-                pyautogui.press('tab')
-                time.sleep(self.random_sec)
-                
-                input_pass = self.driver.find_element(By.ID,'fm-login-password')
-                input_pass.click()
-                pyautogui.write(alie_PW, interval=0.02)
-                time.sleep(self.random_sec)
-                
-                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
-                btn_signin.click()
-                time.sleep(self.random_sec)           
-          
-            elif WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'nfm-multiple-container'))): 
-                
-                print("===============================================")
-                pyautogui.press('tab')
-                time.sleep(0.5)
-                pyautogui.press('tab')  
-                pyautogui.write(alie_ID, interval=0.03)
-                time.sleep(self.random_sec)
-                pyautogui.press('tab')
-                pyautogui.press('enter')
-                time.sleep(self.random_sec)
-                pyautogui.press('tab')
-                time.sleep(self.random_sec)
-                pyautogui.press('tab')
-                pyautogui.write(alie_PW, interval=0.02)
-                pyautogui.press('tab')
-                time.sleep(self.random_sec)
-                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
-                btn_signin.click()
-            else:
-                print('못찾음')
+            input_id = self.driver.find_element(By.ID,'fm-login-id')
+            input_id.click()
+            pyautogui.write(alie_ID, interval=0.03)
+            pyautogui.press('tab')
+            time.sleep(self.random_sec)
+            
+            input_pass = self.driver.find_element(By.ID,'fm-login-password')
+            input_pass.click()
+            pyautogui.write(alie_PW, interval=0.02)
+            time.sleep(self.random_sec)
+            
+            btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+            btn_signin.click()
+            time.sleep(self.random_sec)
             return
-        
         
     def shipped_parcing(self):
         self.driver.implicitly_wait(30)
