@@ -45,6 +45,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     list_tracking = []
     list_shipmemo = []
     update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 한다.
+    chk_state = int
     
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -60,6 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         alie_PW = self.lineEdit_pw.text()
         exUrl = self.lineEdit_path.text()
         self.random_sec = random.uniform(1.5,3)
+        self.random_sec2 = random.uniform(0.8,1.5)
         
         tMessage ="배송조회 시작"
         self.update_text_signal.emit(tMessage)
@@ -85,17 +87,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.write_ini(self.ini_filename, self.section_name, self.key_username, alie_ID)
         self.write_ini(self.ini_filename, self.section_name, self.key_password, alie_PW)
         
+        self.filter_state()
         
-        df_origin = pd.DataFrame()
-        df_origin = self.read_files(exUrl)
-        
-        #df = df_origin
-        target = ['SLX', '기타택배', '직접전달']
-        #df = df_origin.loc[df_origin['택배사'] == 'SLX' or df_origin['택배사'] == '기타택배' or df_origin['택배사'] == '직접전달']
-        df = df_origin.loc[df_origin['택배사'].isin(target)]
-        print(df)
-        print('필터링된 df')
-        
+        df = pd.DataFrame()
+        df = self.read_files(exUrl, self.chk_state)
         
         df_shiptrack = pd.DataFrame()
         df_shiptrack = df[['주문고유코드','해외주문번호','수령자']]
@@ -132,7 +127,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack = df_shiptrack.copy()
         df_shiptrack['송장번호'] = tracking_num
         df_shiptrack['택배사'] = dcompany
-        df_shiptrack['메모'] = self.list_shipmemo
+        df_shiptrack['상태메모'] = self.list_shipmemo
         df_shiptrack['추적Url'] = self.list_tracking
         
         now = datetime.datetime.now()
@@ -145,6 +140,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QCoreApplication.processEvents()
         self.driver.quit()
     
+    @Slot(int)
+    def filter_state(self):
+        if self.chkBox_filter.isChecked():
+            print('체크박스 상태: 체크됨')
+            self.chk_state = 0
+            
+        else:
+            print('체크박스 상태: 해제됨')
+            self.chk_state = 1
+            
     def read_ini(self):
         ini_filename = './save.ini'
         section_name = 'Section1'
@@ -202,12 +207,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         with open(filename, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
         
-    def read_files(self,exUrl):
+    def read_files(self,exUrl,chk_state):
         tMessage = "엑셀파일 읽기 시작"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         df = pd.read_excel(exUrl,header=0,dtype={'수령자': str, '해외주문번호': str, '주문고유코드': str})
-        return df    
+        
+        if chk_state == 0:
+            target = ['SLX택배', '기타택배', '직접전달']
+            df_true = df.loc[df['택배사'].isin(target)]
+            return df_true
+        
+        else:
+            return df
          
     def filedialog_open(self):
         fname=QFileDialog.getOpenFileName(self,'','',"xlsx(*.xlsx)")
@@ -223,12 +235,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         get_url = self.driver.current_url
         #브라우저에서 현재 url을 가져와 로그인 페이지인지 확인
-
+        
         if 'https://login.aliexpress.com' not in get_url:
             self.driver.implicitly_wait(self.random_sec)
             return
         
         else:
+            
             input_id = self.driver.find_element(By.ID,'fm-login-id')
             input_id.click()
             pyautogui.write(alie_ID, interval=0.03)
@@ -244,6 +257,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             btn_signin.click()
             time.sleep(self.random_sec)
             return
+        
         
     def shipped_parcing(self):
         self.driver.implicitly_wait(30)
@@ -314,11 +328,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             if num in orderid_list:
                 if str(num).startswith('1'): 
-                    self.driver.implicitly_wait(30)
                     tracking_url = 'https://track.aliexpress.com/logisticsdetail.htm?tradeId='+num
                     self.list_tracking.append(tracking_url)
                     self.driver.get(tracking_url)
-                    self.driver.implicitly_wait(30)
+                    self.driver.implicitly_wait(8)
                     
                     try:
                         ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul')
@@ -332,13 +345,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         if 'Package delivered' in shipstep_txt:
                             ship_memo = '배송완료'
                         
+                        elif 'Order canceled' in shipstep_txt:
+                            ship_memo = '주문취소'
+                            
+                        elif 'Delivery attempt unsuccessful' in shipstep_txt:    
+                            ship_memo = '배송실패'
+                        
                         elif 'Arrived at destination country/region sorting center' in shipstep_txt:
                             ship_memo = '국내배송시작'
+                            
+                        elif 'Received by local delivery company' in shipstep_txt:
+                            ship_memo = '국내택배사인계'
+                        
+                        elif 'Departed from customs' in shipstep_txt:
+                            ship_memo = '한국세관반출'
+                            
+                        elif 'Clearing Customs' in shipstep_txt:
+                            ship_memo = '한국통관완료'
+                            
+                        elif 'Customs duties payment requested' in shipstep_txt:
+                            ship_memo = '관세납부요청'
                         
                         elif 'Import customs clearance started' in shipstep_txt:
                             ship_memo = '한국통관중'
                         
                         elif 'Departed from departure country/region' in shipstep_txt:
+                            ship_memo = '중국출발'
+                        
+                        elif 'Leaving from departure country/region' in shipstep_txt:
                             ship_memo = '중국출발'
                         
                         elif 'Export customs clearance started' in shipstep_txt:
@@ -349,34 +383,39 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             
                         elif 'Sorry, there is no updated logistics information' in shipstep_txt:
                             ship_memo = '배송정보없음'
-                        
-                        elif 'Customs duties payment requested' in shipstep_txt:
-                            ship_memo = '관세납부요청'
                             
-                        elif 'Order canceled' in shipstep_txt:
-                            ship_memo = '주문취소'
+                        elif 'Processing at sorting center' in shipstep_txt:
+                            ship_memo = '중국내배송중'
+                        
+                        elif 'Delivery company has picked up the large shipment' in shipstep_txt:
+                            ship_memo = '중국내배송중'
+                        
+                        elif 'Package ready for shipping from warehouse' in shipstep_txt:
+                            ship_memo = '상품준비중'
+                        
                         else:
                             ship_memo = '상태불명'
                             
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
-                
+
                     self.list_shipmemo.append(ship_memo)
-                    time.sleep(self.random_sec)
+                    time.sleep(self.random_sec2)
+                
             else:
                 if str(num).startswith('1'):
                     self.list_shipmemo.append("판매자발송전")
                     self.list_tracking.append('판매자발송전')
-                    time.sleep(self.random_sec)
+                    time.sleep(self.random_sec2)
                     print(f'배송중이 아닌 알리 주문번호: {num}')
                     
                 else:
                     self.list_shipmemo.append("알리주문아님")
                     self.list_tracking.append('알리주문아님')
                     print(f'배송중이 아닌 알리 외 주문번호: {num}')
-                    time.sleep(self.random_sec)
-            cnt += 1
-        
+                    time.sleep(self.random_sec2)
+            cnt += 1    
+
         tMessage = "배송상태 조회 완료"  
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
