@@ -61,7 +61,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         alie_PW = self.lineEdit_pw.text()
         exUrl = self.lineEdit_path.text()
         self.random_sec = random.uniform(1.5,3)
-        self.random_sec2 = random.uniform(0.8,1.5)
+        self.random_sec2 = random.uniform(0.5,1)
         
         tMessage ="배송조회 시작"
         self.update_text_signal.emit(tMessage)
@@ -315,6 +315,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         print(input_list)
         print(orderid_list)
         maxNum = len(input_list)
+        print(f'조회할 수량:" {maxNum}개')
         cnt = 1
         
         tMessage = "배송상태 조회 시작"  
@@ -325,13 +326,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             tMessage = '조회중... '+'('+ str(cnt) +'/'+ str(maxNum) +')'+'번 째'
             self.update_text_signal.emit(tMessage)
             QCoreApplication.processEvents()
-            
+            print(f'{cnt}번: {num}')
             if num in orderid_list:
                 if str(num).startswith('1'): 
                     tracking_url = 'https://track.aliexpress.com/logisticsdetail.htm?tradeId='+num
+                    print(f"{cnt}번: 현재 배송중인 번호: {tracking_url}")
                     self.list_tracking.append(tracking_url)
                     self.driver.get(tracking_url)
-                    self.driver.implicitly_wait(8)
+                    self.driver.implicitly_wait(4)
                     
                     try:
                         ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul')
@@ -407,12 +409,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.list_shipmemo.append("판매자발송전")
                     self.list_tracking.append('판매자발송전')
                     time.sleep(self.random_sec2)
-                    print(f'배송중이 아닌 알리 주문번호: {num}')
+                    print(f'{cnt}번: 배송중이 아닌 알리 주문번호: {num}')
                     
                 else:
                     self.list_shipmemo.append("알리주문아님")
                     self.list_tracking.append('알리주문아님')
-                    print(f'배송중이 아닌 알리 외 주문번호: {num}')
+                    print(f'{cnt}번: 배송중이 아닌 알리 외 주문번호: {num}')
                     time.sleep(self.random_sec2)
             cnt += 1    
 
