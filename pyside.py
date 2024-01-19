@@ -121,8 +121,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         orderid_list = []
         orderid_list = self.shipped_parcing()
         
-        self.list_shipmemo, self.list_tracking = self.ship_stat(input_list,orderid_list)
-        tracking_num = self.get_trNum()
+        self.list_shipmemo, self.list_tracking, tracking_num = self.ship_stat(input_list,orderid_list)
+        #tracking_num = self.get_trNum()
         dcompany = self.find_company(tracking_num)
         df_shiptrack = df_shiptrack.copy()
         df_shiptrack['송장번호'] = tracking_num
@@ -317,7 +317,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         maxNum = len(input_list)
         print(f'조회할 수량:" {maxNum}개')
         cnt = 1
-        
+        tracking_num = []
         tMessage = "배송상태 조회 시작"  
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
@@ -327,6 +327,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.update_text_signal.emit(tMessage)
             QCoreApplication.processEvents()
             print(f'{cnt}번: {num}')
+            
             if num in orderid_list:
                 if str(num).startswith('1'): 
                     tracking_url = 'https://track.aliexpress.com/logisticsdetail.htm?tradeId='+num
@@ -336,10 +337,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.driver.implicitly_wait(4)
                     
                     try:
-                        ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul')
+                        ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul') #배송상태 획득
                         shipstep_txt = ship_step.text
+                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[2]/div[1]/div/div/div[2]/span/a') #송장번호 획득
+                        tr_txt = tr_num.text
+                        
                     except NoSuchElementException:
                         shipstep_txt = "취소/종료/알수없음"
+                        tr_txt = ""
                     
                     ship_memo = ""
                     
@@ -402,18 +407,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         ship_memo = '상태불명'
 
                     self.list_shipmemo.append(ship_memo)
+                    tracking_num.append(tr_txt)
                     time.sleep(self.random_sec2)
                 
             else:
                 if str(num).startswith('1'):
                     self.list_shipmemo.append("판매자발송전")
                     self.list_tracking.append('판매자발송전')
+                    tracking_num.append('')
                     time.sleep(self.random_sec2)
                     print(f'{cnt}번: 배송중이 아닌 알리 주문번호: {num}')
                     
                 else:
                     self.list_shipmemo.append("알리주문아님")
                     self.list_tracking.append('알리주문아님')
+                    tracking_num.append('')
                     print(f'{cnt}번: 배송중이 아닌 알리 외 주문번호: {num}')
                     time.sleep(self.random_sec2)
             cnt += 1    
@@ -422,7 +430,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         
-        return self.list_shipmemo, self.list_tracking
+        return self.list_shipmemo, self.list_tracking, tracking_num
     
     def find_company(self,tracking_num):
         
@@ -492,33 +500,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QCoreApplication.processEvents()
         
         return company_name  
-    
-    def get_trNum(self):
-        tracking_num = []
-        tMessage = "송장 가져오기 시작"
-        self.update_text_signal.emit(tMessage)
-        
-        for tr_url in self.list_tracking:
-            if tr_url == '알리주문아님':
-                tracking_num.append('')
-            
-            elif  tr_url == '판매자발송전':
-                tracking_num.append('')
-
-            else:
-                self.driver.get(tr_url)
-                self.driver.implicitly_wait(30)
-                if tr_url == self.driver.current_url:
-                    tr_num = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[2]/div[1]/div/div/div[2]/span/a')
-                    tr_txt = tr_num.text
-                    tracking_num.append(tr_txt)
-                    time.sleep(self.random_sec)
-                else:pass
-        tMessage = "송장 가져오기 종료"
-        self.update_text_signal.emit(tMessage)
-        QCoreApplication.processEvents()
-        
-        return tracking_num
     
     @Slot(str)
     def update_text_browser(self, message):
