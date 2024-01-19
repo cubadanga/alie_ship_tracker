@@ -5,6 +5,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 from tracking_ui import Ui_MainWindow
 import pandas as pd
 import time
+from datetime import timedelta
 import re
 import random
 from selenium import webdriver
@@ -62,6 +63,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         exUrl = self.lineEdit_path.text()
         self.random_sec = random.uniform(1.5,3)
         self.random_sec2 = random.uniform(0.5,1)
+        start_time = time.time()
         
         tMessage ="배송조회 시작"
         self.update_text_signal.emit(tMessage)
@@ -124,6 +126,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.list_shipmemo, self.list_tracking, tracking_num = self.ship_stat(input_list,orderid_list)
         #tracking_num = self.get_trNum()
         dcompany = self.find_company(tracking_num)
+        
+        self.driver.quit()
         df_shiptrack = df_shiptrack.copy()
         df_shiptrack['송장번호'] = tracking_num
         df_shiptrack['택배사'] = dcompany
@@ -135,7 +139,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         excel_filename = './output_file_'+genTime + '.xlsx'
         df_shiptrack.to_excel(excel_filename,index=False)
         
-        tMessage ="작업 완료!!"
+        tMessage ="엑셀파일 저장 완료!!"
+        self.update_text_signal.emit(tMessage)
+        QCoreApplication.processEvents()
+        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        elapsed_timedelta = timedelta(seconds=int(elapsed_time))
+        strTime = str(elapsed_timedelta)
+        
+        tMessage ="모든 작업 완료!!"
+        self.update_text_signal.emit(tMessage)
+        QCoreApplication.processEvents()
+        
+        tMessage = f"총 소요시간: {strTime}"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         self.driver.quit()
@@ -241,25 +258,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return
         
         else:
-            input_id = self.driver.find_element(By.CLASS_NAME,'comet-input-label-content')
-            input_id.click()
-            pyautogui.write(alie_ID, interval=0.03)
-            time.sleep(self.random_sec)
-            input_email = self.driver.find_element(By.CLASS_NAME,'nfm-multiple-email-prefix')
-            input_email.click()
-            time.sleep(self.random_sec)
-            btn_continue = self.driver.find_element(By.CLASS_NAME,'comet-btn')
-            btn_continue.click()
-            time.sleep(self.random_sec2)
-            
-            input_pass = self.driver.find_element(By.ID,'fm-login-password')
-            input_pass.click()
-            pyautogui.write(alie_PW, interval=0.02)
-            time.sleep(self.random_sec)
-            
-            btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
-            btn_signin.click()
-            time.sleep(self.random_sec)
+            try:
+                judge = self.driver.find_element(By.CLASS_NAME,'fm-sns-new-btns')
+                print(f"{judge}: 뉴 유아이")
+                input_id = self.driver.find_element(By.CLASS_NAME,'comet-input-label-content')
+                input_id.click()
+                pyautogui.write(alie_ID, interval=0.03)
+                time.sleep(self.random_sec)
+                input_email = self.driver.find_element(By.CLASS_NAME,'nfm-multiple-email-prefix')
+                input_email.click()
+                time.sleep(self.random_sec)
+                btn_continue = self.driver.find_element(By.CLASS_NAME,'comet-btn')
+                btn_continue.click()
+                time.sleep(self.random_sec2)
+                
+                input_pass = self.driver.find_element(By.ID,'fm-login-password')
+                input_pass.click()
+                pyautogui.write(alie_PW, interval=0.02)
+                time.sleep(self.random_sec)
+                
+                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+                btn_signin.click()
+                time.sleep(self.random_sec)
+                return
+            except:
+                print("올드 유아이")
+                input_id = self.driver.find_element(By.ID,'fm-login-id')
+                input_id.click()
+                pyautogui.write(alie_ID, interval=0.03)
+                pyautogui.press('tab')
+                time.sleep(self.random_sec)
+                
+                input_pass = self.driver.find_element(By.ID,'fm-login-password')
+                input_pass.click()
+                pyautogui.write(alie_PW, interval=0.02)
+                time.sleep(self.random_sec)
+                
+                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+                btn_signin.click()
+                time.sleep(self.random_sec)
             return
         
         
