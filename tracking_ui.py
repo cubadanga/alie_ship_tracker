@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'trackingiRwxvH.ui'
+## Form generated from reading UI file 'trackingFgmCrS.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -24,7 +24,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(452, 725)
+        MainWindow.resize(452, 722)
+        icon = QIcon(QIcon.fromTheme(u"applications-graphics"))
+        MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.label_title = QLabel(self.centralwidget)
@@ -154,7 +156,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Aliex_ship_Tracker", None))
         self.label_title.setText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ubc30\uc1a1 \uc9c4\ud589 \uc0c1\ud669", None))
         self.lbl_subtitle2.setText(QCoreApplication.translate("MainWindow", u"\ud574\uc678\uc8fc\ubb38\ubc88\ud638 \uc5d1\uc140\ud30c\uc77c \uc120\ud0dd", None))
         self.btn_fileopen.setText(QCoreApplication.translate("MainWindow", u"\ud30c\uc77c\uc5f4\uae30", None))

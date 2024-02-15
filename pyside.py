@@ -99,7 +99,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack = df_shiptrack.astype(str)
         input_list = df_shiptrack['해외주문번호'].values.tolist()
         total_cnt = len(input_list)
-        tMessage ='엑셀 시트 주문 건수: '+ str(total_cnt) +'개'
+        tMessage ='확인 대상 주문 건수: '+ str(total_cnt) +'개'
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         
@@ -134,10 +134,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack['상태메모'] = self.list_shipmemo
         df_shiptrack['추적Url'] = self.list_tracking
         
+        ship_condition = ['한국통관중', '관세납부요청','한국통관완료','한국세관반출','배송실패','국내택배사인계','국내배송시작','배송완료']
+        df_shiptrack2 = df.loc[df_shiptrack['상태메모'].isin(ship_condition)]
+        
         now = datetime.datetime.now()
         genTime = now.strftime("%y%m%d%H%M%S")
         excel_filename = './output_file_'+genTime + '.xlsx'
+        excel_filename2 = './forUpload_file_'+genTime + '.xlsx'
+        
         df_shiptrack.to_excel(excel_filename,index=False)
+        df_shiptrack2.to_excel(excel_filename2,index=False)
         
         tMessage ="엑셀파일 저장 완료!!"
         self.update_text_signal.emit(tMessage)
@@ -442,7 +448,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             ship_memo = '상품준비중'
                         
                         else:
-                            ship_memo = '상태불명'
+                            ship_memo = '상태불명/집화전'
                             
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
