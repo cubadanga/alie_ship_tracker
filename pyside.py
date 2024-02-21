@@ -492,7 +492,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if num != '알리주문아님':
                 if num[:2] =='55':
                     company_name.append("CJ대한통운")
-                elif num[:2] == '7511':
+                elif num[:4] == '7511':
                     company_name.append("yunda택배")
                 elif num[:2] =='56':
                     company_name.append("CJ대한통운")
@@ -510,12 +510,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     company_name.append("우체국택배")
                 elif num[:2] =='68':
                     company_name.append("우체국택배")
+                elif num[:2] =='EX':
+                    company_name.append("업체직송")
                 elif num[:2] =='LB':
-                    company_name.append("우체국EMS")
+                    company_name.append("EMS")
+                elif num[:3] =='LPO':
+                    company_name.append("EMS")
                 elif num[:2] =='LP':
-                    company_name.append("우체국EMS") 
-                elif num[:2] =='SYAE':
-                    company_name.append("순유물류") 
+                    company_name.append("EMS")
+                elif num[:2] =='SG':
+                    company_name.append("EMS")
+                elif num[:2] =='CN':
+                    company_name.append("EMS")
+                elif num[:2] =='CP':
+                    company_name.append("EMS")
+                elif num[:4] =='SYAE':
+                    company_name.append("순유물류")
+                elif num[:4] =='SYRM':
+                    company_name.append("업체직송")
                 elif num[:2] =='SY':
                     company_name.append("CJ대한통운특송") 
                 elif num[:2] =='EB':
@@ -524,20 +536,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     company_name.append("CJ대한통운특송")
                 elif num[:2] =='EZ':
                     company_name.append("CJ대한통운특송")
+                elif num[:2] =='UU':
+                    company_name.append("CJ대한통운특송")
                 elif num[:2] =='89':
                     company_name.append("FEDEX")
-                elif num[:2] =='WJS':
+                elif num[:3] =='WJS':
                     company_name.append("웅지익스프레스")
                 elif num[:2] =='WJ':
                     company_name.append("우진화물")
                 elif num[:2] =='Wl':
                     company_name.append("위니온로지스")
-                elif num[:2] =='EKC':
-                    company_name.append("배터리연계된택배사 재조회")
+                elif num[:3] =='EKC':
+                    company_name.append("업체직송")
                 elif num[:2] =='UG':
                     company_name.append("웅지익스프레스")
                 elif num[:2] =='UD':
-                    company_name.append("얀웬")
+                    company_name.append("업체직송")
+                elif num[:2] =='RU':
+                    company_name.append("업제직송")
+                elif num[:2] =='NL':
+                    company_name.append("업체직송")
+                elif num[:2] =='YP':
+                    company_name.append("EMS")
+                elif num[:2] =='LX':
+                    company_name.append("EMS")
+                elif num[:2] =='TW':
+                    company_name.append("EMS")
+                elif num[:2] =='TY':
+                    company_name.append("업체직송")
                 else:
                     company_name.append('')
             else:
