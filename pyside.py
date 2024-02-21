@@ -61,6 +61,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         alie_ID = self.lineEdit_id.text()
         alie_PW = self.lineEdit_pw.text()
         exUrl = self.lineEdit_path.text()
+        combo_date = self.combo_date.currentText()
+        delay_date = int(combo_date)
         self.random_sec = random.uniform(1.5,3)
         self.random_sec2 = random.uniform(0.5,1)
         start_time = time.time()
@@ -92,10 +94,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.filter_state()
         
         df = pd.DataFrame()
-        df = self.read_files(exUrl, self.chk_state)
+        df = self.read_files(exUrl, self.chk_state,delay_date)
         
         df_shiptrack = pd.DataFrame()
-        df_shiptrack = df[['주문고유코드','해외주문번호','수령자']]
+        df_shiptrack = df[['주문일','주문고유코드','해외주문번호','수령자']]
         df_shiptrack = df_shiptrack.astype(str)
         input_list = df_shiptrack['해외주문번호'].values.tolist()
         total_cnt = len(input_list)
@@ -231,16 +233,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         with open(filename, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
         
-    def read_files(self,exUrl,chk_state):
+    def read_files(self,exUrl,chk_state,delay_date):
+        delay_date = delay_date
+        today = datetime.datetime.today()
+        days_ago = today - datetime.timedelta(days=delay_date)
+        
         tMessage = "엑셀파일 읽기 시작"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         df = pd.read_excel(exUrl,header=0,dtype={'수령자': str, '해외주문번호': str, '주문고유코드': str})
+        df['주문일'] = pd.to_datetime(df['주문일'])
         
         if chk_state == 0:
             target = ['SLX택배', '기타택배', '직접전달']
             df_true = df.loc[df['택배사'].isin(target)]
-            return df_true
+            df_true2 = df_true[df_true["주문일"] <= days_ago]
+            return df_true2
         
         else:
             return df

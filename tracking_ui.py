@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'trackingFgmCrS.ui'
+## Form generated from reading UI file 'trackingDXKrxv.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -15,16 +15,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QHBoxLayout, QLabel,
-    QLineEdit, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QTextBrowser, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
+    QLabel, QLineEdit, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QStatusBar, QTextBrowser,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(452, 722)
+        MainWindow.resize(452, 711)
         icon = QIcon(QIcon.fromTheme(u"applications-graphics"))
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
@@ -37,7 +37,7 @@ class Ui_MainWindow(object):
         self.label_title.setFont(font)
         self.verticalLayoutWidget_4 = QWidget(self.centralwidget)
         self.verticalLayoutWidget_4.setObjectName(u"verticalLayoutWidget_4")
-        self.verticalLayoutWidget_4.setGeometry(QRect(50, 260, 351, 80))
+        self.verticalLayoutWidget_4.setGeometry(QRect(50, 260, 351, 131))
         self.verticalLayout_4 = QVBoxLayout(self.verticalLayoutWidget_4)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
@@ -68,6 +68,43 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_4.addLayout(self.horizontalLayout)
 
+        self.chkBox_filter = QCheckBox(self.verticalLayoutWidget_4)
+        self.chkBox_filter.setObjectName(u"chkBox_filter")
+        font3 = QFont()
+        font3.setPointSize(10)
+        font3.setBold(True)
+        self.chkBox_filter.setFont(font3)
+        self.chkBox_filter.setChecked(True)
+
+        self.verticalLayout_4.addWidget(self.chkBox_filter)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.combo_date = QComboBox(self.verticalLayoutWidget_4)
+        self.combo_date.addItem("")
+        self.combo_date.addItem("")
+        self.combo_date.addItem("")
+        self.combo_date.setObjectName(u"combo_date")
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.combo_date.sizePolicy().hasHeightForWidth())
+        self.combo_date.setSizePolicy(sizePolicy)
+        self.combo_date.setMinimumSize(QSize(64, 25))
+        self.combo_date.setMaximumSize(QSize(64, 25))
+        self.combo_date.setFont(font3)
+
+        self.horizontalLayout_2.addWidget(self.combo_date)
+
+        self.label = QLabel(self.verticalLayoutWidget_4)
+        self.label.setObjectName(u"label")
+        self.label.setFont(font3)
+
+        self.horizontalLayout_2.addWidget(self.label)
+
+
+        self.verticalLayout_4.addLayout(self.horizontalLayout_2)
+
         self.verticalLayoutWidget = QWidget(self.centralwidget)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
         self.verticalLayoutWidget.setGeometry(QRect(50, 100, 199, 132))
@@ -82,9 +119,6 @@ class Ui_MainWindow(object):
 
         self.lbl_id = QLabel(self.verticalLayoutWidget)
         self.lbl_id.setObjectName(u"lbl_id")
-        font3 = QFont()
-        font3.setPointSize(10)
-        font3.setBold(True)
         self.lbl_id.setFont(font3)
 
         self.verticalLayout.addWidget(self.lbl_id)
@@ -133,11 +167,6 @@ class Ui_MainWindow(object):
         self.btn_start.setObjectName(u"btn_start")
         self.btn_start.setGeometry(QRect(150, 630, 131, 41))
         self.btn_start.setFont(font1)
-        self.chkBox_filter = QCheckBox(self.centralwidget)
-        self.chkBox_filter.setObjectName(u"chkBox_filter")
-        self.chkBox_filter.setGeometry(QRect(50, 360, 351, 20))
-        self.chkBox_filter.setFont(font3)
-        self.chkBox_filter.setChecked(True)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -160,6 +189,12 @@ class Ui_MainWindow(object):
         self.label_title.setText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ubc30\uc1a1 \uc9c4\ud589 \uc0c1\ud669", None))
         self.lbl_subtitle2.setText(QCoreApplication.translate("MainWindow", u"\ud574\uc678\uc8fc\ubb38\ubc88\ud638 \uc5d1\uc140\ud30c\uc77c \uc120\ud0dd", None))
         self.btn_fileopen.setText(QCoreApplication.translate("MainWindow", u"\ud30c\uc77c\uc5f4\uae30", None))
+        self.chkBox_filter.setText(QCoreApplication.translate("MainWindow", u"\uae30\ud0c0\ud0dd\ubc30, SLX, \uc9c1\uc811\uc804\ub2ec\ub9cc \ubd88\ub7ec\uc624\uae30", None))
+        self.combo_date.setItemText(0, QCoreApplication.translate("MainWindow", u"7", None))
+        self.combo_date.setItemText(1, QCoreApplication.translate("MainWindow", u"5", None))
+        self.combo_date.setItemText(2, QCoreApplication.translate("MainWindow", u"3", None))
+
+        self.label.setText(QCoreApplication.translate("MainWindow", u"\uc77c \uacbd\uacfc\ub41c \uc8fc\ubb38\ub9cc \uc870\ud68c (\uc8fc\ubb38\uc77c \uae30\uc900)", None))
         self.lbl_subTitle1.setText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ub85c\uadf8\uc778 \uc815\ubcf4", None))
         self.lbl_id.setText(QCoreApplication.translate("MainWindow", u"ID", None))
         self.lineEdit_id.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ub85c\uadf8\uc778 \uc544\uc774\ub514", None))
@@ -167,6 +202,5 @@ class Ui_MainWindow(object):
         self.lineEdit_pw.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ub85c\uadf8\uc778 \ud328\uc2a4\uc6cc\ub4dc", None))
         self.lbl_subTitle3.setText(QCoreApplication.translate("MainWindow", u"\uc9c4\ud589 \uc815\ubcf4", None))
         self.btn_start.setText(QCoreApplication.translate("MainWindow", u"\uc870\ud68c\ud558\uae30", None))
-        self.chkBox_filter.setText(QCoreApplication.translate("MainWindow", u"\uae30\ud0c0\ud0dd\ubc30, SLX, \uc9c1\uc811\uc804\ub2ec\ub9cc \ubd88\ub7ec\uc624\uae30", None))
     # retranslateUi
 
