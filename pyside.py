@@ -95,13 +95,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         df = pd.DataFrame()
         df = self.read_files(exUrl, self.chk_state,delay_date)
-        
+        print(df)
         df_shiptrack = pd.DataFrame()
         df_shiptrack = df[['주문일','주문고유코드','해외주문번호','수령자']]
         df_shiptrack = df_shiptrack.astype(str)
         input_list = df_shiptrack['해외주문번호'].values.tolist()
         total_cnt = len(input_list)
-        tMessage ='확인 대상 주문 건수: '+ str(total_cnt) +'개'
+        tMessage ='조회 대상 주문 건수: '+ str(total_cnt) +'개'
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         
@@ -329,24 +329,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         int_numbers =  int(num)
         btn_count = int_numbers//10
         #print(f'버튼개수: {btn_count}')
-        num = 0
+        num = 1
         # 페이지 누르기
         tMessage = "주문번호 매칭 시작"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         
-        while num < btn_count:
+        while num <= btn_count:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            WebDriverWait(self.driver, 4).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[2]/button')))
-            time.sleep(self.random_sec)
             try:
+                WebDriverWait(self.driver, 2).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[2]/button')))
                 order_id_div = self.driver.find_element(By.XPATH,'//*[@id="root"]/div[1]/div[2]/div[2]/button')
                 order_id_div.click()
+                print(str(num) + "번째 클릭")
+                time.sleep(self.random_sec)
+                num += 1
+                
             except NoSuchElementException:
+                self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 print("버튼 없음")
                 
-            num += 1
-            
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         
         shipped_html = self.driver.page_source
@@ -395,6 +398,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     try:
                         ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul') #배송상태 획득
                         shipstep_txt = ship_step.text
+                        
                         tr_num = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[2]/div[1]/div/div/div[2]/span/a') #송장번호 획득
                         tr_txt = tr_num.text
                         
@@ -458,7 +462,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         
                         else:
                             ship_memo = '상태불명/집화전'
-                            
+                        print(num+": "+ship_memo)    
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
 
