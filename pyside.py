@@ -1,5 +1,3 @@
-from typing import Optional
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog
 from PySide6.QtCore import QObject, Signal, Slot
 from tracking_ui import Ui_MainWindow
