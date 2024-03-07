@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'trackingDXKrxv.ui'
+## Form generated from reading UI file 'trackingkLYrXm.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -25,7 +25,8 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(452, 711)
-        icon = QIcon("icon.png")
+        icon = QIcon()
+        icon.addFile(u":/icon/icon.png", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")

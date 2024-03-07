@@ -7,14 +7,15 @@
     <x>0</x>
     <y>0</y>
     <width>452</width>
-    <height>711</height>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Aliex_ship_Tracker</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="applications-graphics"/>
+   <iconset resource="resources.qrc">
+    <normaloff>:/icon/icon.png</normaloff>:/icon/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label_title">
@@ -277,6 +278,9 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string>조회하기</string>
     </property>
@@ -294,7 +298,9 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>btn_fileopen</sender>

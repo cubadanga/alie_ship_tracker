@@ -93,7 +93,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         df = pd.DataFrame()
         df = self.read_files(exUrl, self.chk_state,delay_date)
-        print(df)
         df_shiptrack = pd.DataFrame()
         df_shiptrack = df[['주문일','주문고유코드','해외주문번호','수령자']]
         df_shiptrack = df_shiptrack.astype(str)
@@ -162,7 +161,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tMessage = f"총 소요시간: {strTime}"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
-        self.driver.quit()
     
     @Slot(int)
     def filter_state(self):
@@ -593,6 +591,3 @@ app = QApplication()
 window = MainWindow()
 window.show()
 app.exec()
-
-
-
