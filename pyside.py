@@ -323,7 +323,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         numbers = re.findall(r'\d+', count)
         num = numbers[0] 
         int_numbers =  int(num)
-        btn_count = int_numbers//10
+        btn_count = (int_numbers-1)//10
         #print(f'버튼개수: {btn_count}')
         num = 1
         # 페이지 누르기
@@ -335,7 +335,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         while num <= btn_count:
             self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             try:
-                WebDriverWait(self.driver, 2).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[2]/button')))
+                WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[2]/button')))
                 order_id_div = self.driver.find_element(By.XPATH,'//*[@id="root"]/div[1]/div[2]/div[2]/button')
                 order_id_div.click()
                 print(str(num) + "번째 클릭")
@@ -389,7 +389,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     print(f"{cnt}번: 현재 배송중인 번호: {tracking_url}")
                     self.list_tracking.append(tracking_url)
                     self.driver.get(tracking_url)
-                    self.driver.implicitly_wait(4)
+                    element = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "send-content-main")))
                     
                     try:
                         ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul') #배송상태 획득
