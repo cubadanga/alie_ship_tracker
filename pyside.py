@@ -441,6 +441,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         elif 'Export customs clearance started' in shipstep_txt:
                             ship_memo = '중국통관중'
                             
+                        elif 'Arrived at departure transport hub' in shipstep_txt:
+                            ship_memo = '중국공항도착'
+                
                         elif 'Package shipped out from warehouse' in shipstep_txt:
                             ship_memo = '중국내배송출발'
                             
@@ -453,11 +456,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         elif 'Delivery company has picked up the large shipment' in shipstep_txt:
                             ship_memo = '중국내배송중'
                         
+                        elif 'Order has been packed into a large shipment and ready for the delivery company to pick up.' in shipstep_txt:
+                            ship_memo = '대형화물로픽업준비'
+                        
+                        
                         elif 'Package ready for shipping from warehouse' in shipstep_txt:
                             ship_memo = '상품준비중'
                         
                         else:
-                            ship_memo = '상태불명/집화전'
+                            ship_memo = '집화전/기타상태'
                         print(num+": "+ship_memo)    
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
