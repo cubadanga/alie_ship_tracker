@@ -403,7 +403,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         tr_txt = ""
                     
                     ship_memo = ""
-                    
+                
                     try:
                         if 'Package delivered' in shipstep_txt:
                             ship_memo = '배송완료'
@@ -468,7 +468,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         print(num+": "+ship_memo)    
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
+                    
+                    ''' 딕셔너리로 하면 이상하게 검색이 안되는 항목이 발견됨.
+                    ship_status_dict = {
+                        'Package delivered': '배송완료',
+                        'Order canceled': '주문취소',
+                        'Delivery attempt unsuccessful': '배송실패',
+                        'Arrived at destination country/region sorting center': '국내배송시작',
+                        'Received by local delivery company': '국내택배사인계',
+                        'Departed from customs': '한국세관반출',
+                        'Clearing Customs': '한국통관완료',
+                        'Customs duties payment requested': '관세납부요청',
+                        'Import customs clearance started': '한국통관중',
+                        'Departed from departure country/region': '중국출발',
+                        'Leaving from departure country/region': '중국출발',
+                        'Export customs clearance started': '중국통관중',
+                        'Arrived at departure transport hub': '중국공항도착',
+                        'Package shipped out from warehouse': '중국내배송출발',
+                        'Sorry, there is no updated logistics information': '배송정보없음',
+                        'Processing at sorting center': '중국내배송중',
+                        'Delivery company has picked up the large shipment': '중국내배송중',
+                        'Order has been packed into a large shipment and ready for the delivery company to pick up.': '대형화물로픽업준비',
+                        'Package ready for shipping from warehouse': '상품준비중'
+                    }
 
+                    try:
+                        ship_memo = ship_status_dict.get(shipstep_txt, '집화전/기타상태')
+                        print(num + ": " + ship_memo)
+                    except NoSuchElementException:    
+                        ship_memo = '상태불명'
+                    '''
+                    
                     self.list_shipmemo.append(ship_memo)
                     tracking_num.append(tr_txt)
                     time.sleep(self.random_sec2)
