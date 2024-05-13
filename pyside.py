@@ -430,16 +430,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             ship_memo = '관세납부요청'
                         
                         elif 'Import customs clearance started' in shipstep_txt:
-                            ship_memo = '한국통관중'
+                            ship_memo = '한국통관시작'
+                        
+                        elif 'Arrived at destination country/region sorting center' in shipstep_txt:
+                            ship_memo = '한국도착통관전'
                         
                         elif 'Departed from departure country/region' in shipstep_txt:
                             ship_memo = '중국출발'
                         
                         elif 'Leaving from departure country/region' in shipstep_txt:
                             ship_memo = '중국출발'
+                            
+                        elif 'Export customs clearance complete' in shipstep_txt:
+                            ship_memo = '중국수출통관완료'
                         
                         elif 'Export customs clearance started' in shipstep_txt:
-                            ship_memo = '중국통관중'
+                            ship_memo = '중국수출통관중'
                             
                         elif 'Arrived at departure transport hub' in shipstep_txt:
                             ship_memo = '중국공항도착'
@@ -459,12 +465,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         elif 'Order has been packed into a large shipment and ready for the delivery company to pick up.' in shipstep_txt:
                             ship_memo = '대형화물로픽업준비'
                         
+                        elif 'Received by logistics company' in shipstep_txt:
+                            ship_memo = '중국택배사집화완료'
                         
                         elif 'Package ready for shipping from warehouse' in shipstep_txt:
                             ship_memo = '상품준비중'
                         
                         else:
                             ship_memo = '집화전/기타상태'
+                            
                         print(num+": "+ship_memo)    
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
@@ -545,6 +554,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     company_name.append("CJ대한통운")
                 elif num[:2] =='58':
                     company_name.append("CJ대한통운")
+                elif num[:2] =='59':
+                    company_name.append("CJ대한통운")    
                 elif num[:2] =='75':
                     company_name.append("CJ대한통운")
                 elif num[:2] =='51':
@@ -562,6 +573,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif num[:3] =='LPO':
                     company_name.append("EMS")
                 elif num[:2] =='LP':
+                    company_name.append("EMS")
+                elif num[:2] =='LX':
                     company_name.append("EMS")
                 elif num[:2] =='SG':
                     company_name.append("EMS")
@@ -607,6 +620,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     company_name.append("EMS")
                 elif num[:2] =='TW':
                     company_name.append("EMS")
+                elif num[:4] =='PCTN':
+                    company_name.append("범한판토스")
                 elif num[:2] =='TY':
                     company_name.append("업체직송")
                 else:

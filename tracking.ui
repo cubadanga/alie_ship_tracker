@@ -226,6 +226,9 @@
            <pointsize>10</pointsize>
           </font>
          </property>
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
          <property name="placeholderText">
           <string>알리 로그인 패스워드</string>
          </property>

@@ -1,1 +1,1 @@
-pyinstaller -w -F --icon=icon.png  -n tracker.exe pyside.py
+pyinstaller -w -F --icon=icon.png  -n tracker_v0.2.0.exe pyside.py
