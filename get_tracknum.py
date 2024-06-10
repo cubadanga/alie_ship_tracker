@@ -144,7 +144,7 @@ def get_trNum(list_tracking):
             driver.get(tr_url)
             driver.implicitly_wait(30)
             if tr_url == driver.current_url:
-                tr_num = driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[2]/div[1]/div/div/div[2]/span/a')
+                tr_num = driver.find_element(By.XPATH,'//*[@id="root"]/div/div[3]/div[2]/div/div/span')
                 tr_txt = tr_num.text
                 tracking_num.append(tr_txt)
                 time.sleep(random_sec)
@@ -165,7 +165,7 @@ def ship_stat(input_list, orderid_list):
                 list_tracking.append(tracking_url)
                 driver.get(tracking_url)
                 driver.implicitly_wait(30)
-                ship_step = driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul')
+                ship_step = driver.find_element(By.XPATH,'//*[@id="root"]/div/div[3]/div[4]/div/div[1]/div[2]')
                 shipstep_txt = ship_step.text
                 
                 try:
