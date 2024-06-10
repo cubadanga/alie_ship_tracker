@@ -33,7 +33,6 @@ options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple
 options.add_experimental_option("excludeSwitches", ['enable-logging'])
 
 class MainWindow(QMainWindow, Ui_MainWindow):
-    random_sec = None
     service = None
     driver = None
     config = configparser.ConfigParser()
@@ -45,6 +44,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     list_shipmemo = []
     update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 한다.
     chk_state = int
+    random_sec = random.uniform(1.5,3)
+    random_sec2 = random.uniform(1,3)
     
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -61,8 +62,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         exUrl = self.lineEdit_path.text()
         combo_date = self.combo_date.currentText()
         delay_date = int(combo_date)
-        self.random_sec = random.uniform(1.5,3)
-        self.random_sec2 = random.uniform(0.5,1)
+        self.random_sec = random.uniform(1,2.5)
+        self.random_sec2 = random.uniform(1,3)
         start_time = time.time()
         
         tMessage ="배송조회 시작"
@@ -146,6 +147,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack2.to_excel(excel_filename2,index=False)
         
         tMessage ="엑셀파일 저장 완료!!"
+        print(tMessage)
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         
@@ -161,6 +163,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tMessage = f"총 소요시간: {strTime}"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
+        print(tMessage)
     
     @Slot(int)
     def filter_state(self):
@@ -199,7 +202,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             
         else:
-            tMessage ="INI 파일이 존재하지 않거나 형식이 잘못되었습니다.2"
+            tMessage ="INI 파일이 존재하지 않거나 형식이 잘못되었습니다."
             self.update_text_signal.emit(tMessage)
             QCoreApplication.processEvents()
             
@@ -385,17 +388,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             if num in orderid_list:
                 if str(num).startswith('1'): 
-                    tracking_url = 'https://track.aliexpress.com/logisticsdetail.htm?tradeId='+num
+                    tracking_url = 'https://www.aliexpress.com/p/tracking/index.html?_addShare=no&_login=yes&tradeOrderId='+num
                     print(f"{cnt}번: 현재 배송중인 번호: {tracking_url}")
                     self.list_tracking.append(tracking_url)
                     self.driver.get(tracking_url)
-                    element = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "send-content-main")))
+                    WebDriverWait(self.driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, "//div[@class='tracking-page-pc-wrap']"))
+                    )
+                    
                     
                     try:
-                        ship_step = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[1]/div[2]/div[2]/div/ul') #배송상태 획득
+                        ship_step = self.driver.find_element(By.XPATH,'//div[@class="logistic-info--node--qUG30Yg"]/div[@class="logistic-info--nodeDesc--Pa3Wnop"]') #배송상태 획득
                         shipstep_txt = ship_step.text
                         
-                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="app"]/div/div[1]/div[2]/div[1]/div/div/div[2]/span/a') #송장번호 획득
+                        tr_num = self.driver.find_element(By.XPATH,'//div[@class="logistic-info--mailNo-pc--3cTqcXe"]/div/span') #송장번호 획득
                         tr_txt = tr_num.text
                         
                     except NoSuchElementException:
@@ -407,6 +413,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     try:
                         if 'Package delivered' in shipstep_txt:
                             ship_memo = '배송완료'
+                            
+                        elif 'Out for delivery' in shipstep_txt:
+                            ship_memo = '국내배송출발'
                         
                         elif 'Order canceled' in shipstep_txt:
                             ship_memo = '주문취소'
@@ -419,13 +428,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             
                         elif 'Received by local delivery company' in shipstep_txt:
                             ship_memo = '국내택배사인계'
+                            
+                        elif 'Left from destination country/region sorting center' in shipstep_txt:
+                            ship_memo = '국내택배사인계'
                         
                         elif 'Departed from customs' in shipstep_txt:
+                            ship_memo = '한국세관반출'
+                        
+                        elif 'Left from customs' in shipstep_txt:
                             ship_memo = '한국세관반출'
                             
                         elif 'Clearing Customs' in shipstep_txt:
                             ship_memo = '한국통관완료'
                             
+                        elif 'Clearing Customs' in shipstep_txt:
+                            ship_memo = '한국통관완료'    
+                        
                         elif 'Customs duties payment requested' in shipstep_txt:
                             ship_memo = '관세납부요청'
                         
@@ -440,12 +458,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         
                         elif 'Leaving from departure country/region' in shipstep_txt:
                             ship_memo = '중국출발'
+                        
+                        elif 'Left from departure country/region sorting center' in shipstep_txt:
+                            ship_memo = '중국출발'    
                             
                         elif 'Export customs clearance complete' in shipstep_txt:
                             ship_memo = '중국수출통관완료'
                         
                         elif 'Export customs clearance started' in shipstep_txt:
                             ship_memo = '중국수출통관중'
+                        
+                        elif 'Arrived at line-haul office' in shipstep_txt:
+                            ship_memo = '운송허브에 도착'
+                        
+                        elif 'Handed over to line-haul' in shipstep_txt:
+                            ship_memo = '운송허브에 도착'
                             
                         elif 'Arrived at departure transport hub' in shipstep_txt:
                             ship_memo = '중국공항도착'
@@ -459,6 +486,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         elif 'Processing at sorting center' in shipstep_txt:
                             ship_memo = '중국내배송중'
                         
+                        elif 'Processing at departure country/region sorting center' in shipstep_txt:
+                            ship_memo = '중국내배송중'
+                        
                         elif 'Delivery company has picked up the large shipment' in shipstep_txt:
                             ship_memo = '중국내배송중'
                         
@@ -468,56 +498,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         elif 'Received by logistics company' in shipstep_txt:
                             ship_memo = '중국택배사집화완료'
                         
+                        elif 'Left from warehouse' in shipstep_txt:
+                            ship_memo = '현지상품 출하'
+                        
                         elif 'Package ready for shipping from warehouse' in shipstep_txt:
                             ship_memo = '상품준비중'
                         
                         else:
                             ship_memo = '집화전/기타상태'
                             
-                        print(num+": "+ship_memo)    
+                        print(num+": "+ship_memo)
+                        
                     except NoSuchElementException:    
                         ship_memo = '상태불명'
-                    
-                    ''' 딕셔너리로 하면 이상하게 검색이 안되는 항목이 발견됨.
-                    ship_status_dict = {
-                        'Package delivered': '배송완료',
-                        'Order canceled': '주문취소',
-                        'Delivery attempt unsuccessful': '배송실패',
-                        'Arrived at destination country/region sorting center': '국내배송시작',
-                        'Received by local delivery company': '국내택배사인계',
-                        'Departed from customs': '한국세관반출',
-                        'Clearing Customs': '한국통관완료',
-                        'Customs duties payment requested': '관세납부요청',
-                        'Import customs clearance started': '한국통관중',
-                        'Departed from departure country/region': '중국출발',
-                        'Leaving from departure country/region': '중국출발',
-                        'Export customs clearance started': '중국통관중',
-                        'Arrived at departure transport hub': '중국공항도착',
-                        'Package shipped out from warehouse': '중국내배송출발',
-                        'Sorry, there is no updated logistics information': '배송정보없음',
-                        'Processing at sorting center': '중국내배송중',
-                        'Delivery company has picked up the large shipment': '중국내배송중',
-                        'Order has been packed into a large shipment and ready for the delivery company to pick up.': '대형화물로픽업준비',
-                        'Package ready for shipping from warehouse': '상품준비중'
-                    }
-
-                    try:
-                        ship_memo = ship_status_dict.get(shipstep_txt, '집화전/기타상태')
-                        print(num + ": " + ship_memo)
-                    except NoSuchElementException:    
-                        ship_memo = '상태불명'
-                    '''
                     
                     self.list_shipmemo.append(ship_memo)
                     tracking_num.append(tr_txt)
-                    time.sleep(self.random_sec2)
+                    time.sleep(self.random_sec)
                 
             else:
                 if str(num).startswith('1'):
                     self.list_shipmemo.append("판매자발송전")
                     self.list_tracking.append('판매자발송전')
                     tracking_num.append('')
-                    time.sleep(self.random_sec2)
+                    time.sleep(self.random_sec)
                     print(f'{cnt}번: 배송중이 아닌 알리 주문번호: {num}')
                     
                 else:
@@ -525,7 +529,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.list_tracking.append('알리주문아님')
                     tracking_num.append('')
                     print(f'{cnt}번: 배송중이 아닌 알리 외 주문번호: {num}')
-                    time.sleep(self.random_sec2)
+                    time.sleep(self.random_sec)
             cnt += 1    
 
         tMessage = "배송상태 조회 완료"  
