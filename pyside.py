@@ -557,13 +557,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 elif num[:2] =='57':
                     company_name.append("CJ대한통운")
                 elif num[:2] =='58':
-                    company_name.append("CJ대한통운")
-                elif num[:2] =='59':
-                    company_name.append("CJ대한통운")    
+                    company_name.append("CJ대한통운")   
                 elif num[:2] =='75':
                     company_name.append("CJ대한통운")
                 elif num[:2] =='51':
                     company_name.append("한진택배")
+                elif num[:2] =='59':
+                    company_name.append("CJ대한통운")
                 elif num[:2] =='80':
                     company_name.append("한진택배")
                 elif num[:2] =='60':
@@ -590,6 +590,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     company_name.append("순유물류")
                 elif num[:4] =='SYRM':
                     company_name.append("업체직송")
+                elif num[:2] =='31':
+                    if len(num) == 10:
+                        company_name.append("DHL")
+                    else:
+                        company_name.append("롯데택배")
+                elif num[:2] =='37':
+                    company_name.append("CJ대한통운") 
                 elif num[:2] =='SY':
                     company_name.append("CJ대한통운특송") 
                 elif num[:2] =='EB':
