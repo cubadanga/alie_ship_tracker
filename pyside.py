@@ -596,7 +596,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     else:
                         company_name.append("롯데택배")
                 elif num[:2] =='37':
-                    company_name.append("CJ대한통운") 
+                    company_name.append("DHL") 
                 elif num[:2] =='SY':
                     company_name.append("CJ대한통운특송") 
                 elif num[:2] =='EB':
