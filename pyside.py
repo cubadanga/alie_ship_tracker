@@ -116,7 +116,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         options.add_experimental_option("excludeSwitches", ['enable-logging'])
 
-        self.service = Service(executable_path=ChromeDriverManager().install())
+        self.service = Service()
         self.driver = webdriver.Chrome(service=self.service, options=options)
         self.sign_In(ship_url,alie_ID,alie_PW)
         
