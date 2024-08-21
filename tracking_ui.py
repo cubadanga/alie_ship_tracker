@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'trackingkLYrXm.ui'
+## Form generated from reading UI file 'trackingosEqSC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(452, 711)
+        MainWindow.resize(452, 724)
         icon = QIcon()
         icon.addFile(u":/icon/icon.png", QSize(), QIcon.Normal, QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -141,6 +141,7 @@ class Ui_MainWindow(object):
         self.lineEdit_pw = QLineEdit(self.verticalLayoutWidget)
         self.lineEdit_pw.setObjectName(u"lineEdit_pw")
         self.lineEdit_pw.setFont(font2)
+        self.lineEdit_pw.setEchoMode(QLineEdit.Password)
 
         self.verticalLayout_2.addWidget(self.lineEdit_pw)
 
@@ -168,6 +169,7 @@ class Ui_MainWindow(object):
         self.btn_start.setObjectName(u"btn_start")
         self.btn_start.setGeometry(QRect(150, 630, 131, 41))
         self.btn_start.setFont(font1)
+        self.btn_start.setStyleSheet(u"")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
