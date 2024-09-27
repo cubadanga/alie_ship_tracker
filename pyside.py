@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QCoreApplication, QThread, Signal, Slot
 from tracking_ui import Ui_MainWindow
 import pandas as pd
 import time
@@ -16,7 +16,6 @@ from selenium.common.exceptions import NoSuchElementException
 import pyautogui
 import configparser
 from bs4 import BeautifulSoup
-from PySide6.QtCore import QCoreApplication
 import datetime
  # 크롬드라이버 자동업데이트
 from webdriver_manager.chrome import ChromeDriverManager
@@ -27,10 +26,10 @@ options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("disable-gpu")   # 가속 사용 x
 options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
 options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
-
-#불필요한 에러메시지 없애기
-
 options.add_experimental_option("excludeSwitches", ['enable-logging'])
+
+
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     service = None
@@ -111,9 +110,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options.add_argument("disable-gpu")   # 가속 사용 x
         options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
         options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
-
-        #불필요한 에러메시지 없애기
-
         options.add_experimental_option("excludeSwitches", ['enable-logging'])
 
         self.service = Service()
@@ -452,6 +448,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         
                         elif 'Arrived at destination country/region sorting center' in shipstep_txt:
                             ship_memo = '한국도착통관전'
+                            
+                        elif 'Customs clearance started' in shipstep_txt:
+                            ship_memo = '통관중'
+                            
+                        elif 'Customs clearance complete' in shipstep_txt:
+                            ship_memo = '통관완료' 
                         
                         elif 'Departed from departure country/region' in shipstep_txt:
                             ship_memo = '중국출발'
