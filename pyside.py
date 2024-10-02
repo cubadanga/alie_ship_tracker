@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
 import pyautogui
 import configparser
 from bs4 import BeautifulSoup
@@ -374,6 +375,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tracking_num = []
         tMessage = "배송상태 조회 시작"  
         self.update_text_signal.emit(tMessage)
+        self.driver.implicitly_wait(1)
         QCoreApplication.processEvents()
         
         for num in input_list:
@@ -388,17 +390,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     print(f"{cnt}번: 현재 배송중인 번호: {tracking_url}")
                     self.list_tracking.append(tracking_url)
                     self.driver.get(tracking_url)
-                    WebDriverWait(self.driver, 10).until(
-                        EC.presence_of_element_located((By.XPATH, "//div[@class='tracking-page-pc-wrap']"))
-                    )
-                    
                     
                     try:
-                        ship_step = self.driver.find_element(By.XPATH,'//div[@class="logistic-info--node--qUG30Yg"]/div[@class="logistic-info--nodeDesc--Pa3Wnop"]') #배송상태 획득
-                        shipstep_txt = ship_step.text
+                        WebDriverWait(self.driver, 2).until(
+                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림
+                        )
+                        print('버튼 찾음')
                         
-                        tr_num = self.driver.find_element(By.XPATH,'//div[@class="logistic-info--mailNo-pc--3cTqcXe"]/div/span') #송장번호 획득
+                        btn_view_more = self.driver.find_element(By.XPATH,"//div[@class='logistic-info-v2--viewMoreBtn--iuFWB5S']") #view more 버튼을 찾는다.
+                        btn_view_more.click() #버튼 클릭
+                    
+                    except TimeoutException:
+                        print('버튼 로딩 타임아웃, 버튼을 찾지 못 찾음.')  # 타임아웃 발생 시
+
+                    except Exception as e:
+                        print(f'기타 오류 발생: {e}')
+                                       
+                    try:                       
+                        logistic_top = self.driver.find_element(By.CLASS_NAME, "logistic-info-v2--track--1nqL7Vl") #배송 상태 가장 상위 클래스
+                        logistic_sub = logistic_top.find_elements(By.XPATH, ".//div[text()]") #배송 상태 하위
+                        
+                        for logistic_sub in logistic_sub:
+                            logistic_txt = logistic_sub.text
+                        
+                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="root"]/div/div[3]/div[2]/div/span[2]') #송장번호 획득
                         tr_txt = tr_num.text
+                        
+                        ship_step = self.driver.find_element(By.XPATH,'//div[@class="logistic-info-v2--nodeDesc--2U3A3Yt"]') #배송상태 획득
+                        shipstep_txt = ship_step.text
                         
                     except NoSuchElementException:
                         shipstep_txt = "취소/종료/알수없음"
@@ -407,106 +426,54 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     ship_memo = ""
                 
                     try:
-                        if 'Package delivered' in shipstep_txt:
-                            ship_memo = '배송완료'
-                            
-                        elif 'Out for delivery' in shipstep_txt:
-                            ship_memo = '국내배송출발'
-                        
-                        elif 'Order canceled' in shipstep_txt:
-                            ship_memo = '주문취소'
-                            
-                        elif 'Delivery attempt unsuccessful' in shipstep_txt:    
-                            ship_memo = '배송실패'
-                        
-                        elif 'Arrived at destination country/region sorting center' in shipstep_txt:
-                            ship_memo = '국내배송시작'
-                            
-                        elif 'Received by local delivery company' in shipstep_txt:
-                            ship_memo = '국내택배사인계'
-                            
-                        elif 'Left from destination country/region sorting center' in shipstep_txt:
-                            ship_memo = '국내택배사인계'
-                        
-                        elif 'Departed from customs' in shipstep_txt:
-                            ship_memo = '한국세관반출'
-                        
-                        elif 'Left from customs' in shipstep_txt:
-                            ship_memo = '한국세관반출'
-                            
-                        elif 'Clearing Customs' in shipstep_txt:
-                            ship_memo = '한국통관완료'
-                            
-                        elif 'Clearing Customs' in shipstep_txt:
-                            ship_memo = '한국통관완료'    
-                        
-                        elif 'Customs duties payment requested' in shipstep_txt:
-                            ship_memo = '관세납부요청'
-                        
-                        elif 'Import customs clearance started' in shipstep_txt:
-                            ship_memo = '한국통관시작'
-                        
-                        elif 'Arrived at destination country/region sorting center' in shipstep_txt:
-                            ship_memo = '한국도착통관전'
-                            
-                        elif 'Customs clearance started' in shipstep_txt:
-                            ship_memo = '통관중'
-                            
-                        elif 'Customs clearance complete' in shipstep_txt:
-                            ship_memo = '통관완료' 
-                        
-                        elif 'Departed from departure country/region' in shipstep_txt:
-                            ship_memo = '중국출발'
-                        
-                        elif 'Leaving from departure country/region' in shipstep_txt:
-                            ship_memo = '중국출발'
-                        
-                        elif 'Left from departure country/region sorting center' in shipstep_txt:
-                            ship_memo = '중국출발'    
-                            
-                        elif 'Export customs clearance complete' in shipstep_txt:
-                            ship_memo = '중국수출통관완료'
-                        
-                        elif 'Export customs clearance started' in shipstep_txt:
-                            ship_memo = '중국수출통관중'
-                        
-                        elif 'Arrived at line-haul office' in shipstep_txt:
-                            ship_memo = '운송허브에 도착'
-                        
-                        elif 'Handed over to line-haul' in shipstep_txt:
-                            ship_memo = '운송허브에 도착'
-                            
-                        elif 'Arrived at departure transport hub' in shipstep_txt:
-                            ship_memo = '중국공항도착'
-                
-                        elif 'Package shipped out from warehouse' in shipstep_txt:
-                            ship_memo = '중국내배송출발'
-                            
-                        elif 'Sorry, there is no updated logistics information' in shipstep_txt:
-                            ship_memo = '배송정보없음'
-                            
-                        elif 'Processing at sorting center' in shipstep_txt:
-                            ship_memo = '중국내배송중'
-                        
-                        elif 'Processing at departure country/region sorting center' in shipstep_txt:
-                            ship_memo = '중국내배송중'
-                        
-                        elif 'Delivery company has picked up the large shipment' in shipstep_txt:
-                            ship_memo = '중국내배송중'
-                        
-                        elif 'Order has been packed into a large shipment and ready for the delivery company to pick up.' in shipstep_txt:
-                            ship_memo = '대형화물로픽업준비'
-                        
-                        elif 'Received by logistics company' in shipstep_txt:
-                            ship_memo = '중국택배사집화완료'
-                        
-                        elif 'Left from warehouse' in shipstep_txt:
-                            ship_memo = '현지상품 출하'
-                        
-                        elif 'Package ready for shipping from warehouse' in shipstep_txt:
-                            ship_memo = '상품준비중'
-                        
-                        else:
+                        status_mapping = {
+                            'Package delivered': '배송완료',
+                            'Out for delivery': '국내배송출발',
+                            'Order canceled': '주문취소',
+                            'Shipment canceled': '배송취소',
+                            'Delivery attempt unsuccessful': '배송실패',
+                            'Arrived at destination country/region sorting center': '국내배송시작',
+                            'Your package has left the sorting center in the destination country/region': '국내배송시작',
+                            'Arrived at sorting center in destination country/region': '국내택배사인계',
+                            'Received by local delivery company': '국내택배사인계',
+                            'Left from destination country/region sorting center': '국내택배사인계',
+                            'Departed from customs': '한국세관반출',
+                            'Left from customs': '한국세관반출',
+                            'Clearing Customs': '한국통관완료',
+                            'Customs duties payment requested': '관세납부요청',
+                            'Import customs clearance started': '한국통관시작',
+                            'Arrived at destination country/region sorting center': '한국도착통관전',
+                            'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국수출통관중'),
+                            'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
+                            'Departed from departure country/region': '중국출발',
+                            'Leaving from departure country/region': '중국출발',
+                            'Left from departure country/region sorting center': '중국출발',
+                            'Left from departure country/region': '중국출발',
+                            'Export customs clearance complete': '중국수출통관완료',
+                            'Export customs clearance started': '중국수출통관중',
+                            'Arrived at line-haul office': '운송허브에 도착',
+                            'Handed over to line-haul': '운송허브에 도착',
+                            'Arrived at departure transport hub': '중국공항도착',
+                            'Package shipped out from warehouse': '중국내배송출발',
+                            'Sorry, there is no updated logistics information': '배송정보없음',
+                            'Processing at sorting center': '중국내배송중',
+                            'Processing at departure country/region sorting center': '중국내배송중',
+                            'Delivery company has picked up the large shipment': '중국내배송중',
+                            'Order has been packed into a large shipment and ready for the delivery company to pick up.': '대형화물로픽업준비',
+                            'Received by logistics company': '중국택배사집화완료',
+                            'Left from warehouse': '현지상품 출하',
+                            'Package ready for shipping from warehouse': '상품준비중',
+                        }
+
+                        # 상태를 확인하고 메모를 설정
+                        for key, value in status_mapping.items():
+                            if key in shipstep_txt:
+                                if isinstance(value, tuple):  # 두 가지 경우 중 하나를 선택
+                                    ship_memo = value
+                                else:
+                                    ship_memo = value
+                                break
+                        else:  # 모든 조건을 만족하지 않을 경우
                             ship_memo = '집화전/기타상태'
                             
                         print(num+": "+ship_memo)
