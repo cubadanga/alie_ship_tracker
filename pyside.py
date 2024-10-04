@@ -451,8 +451,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Left from departure country/region': '중국출발',
                             'Export customs clearance complete': '중국수출통관완료',
                             'Export customs clearance started': '중국수출통관중',
-                            'Arrived at line-haul office': '운송허브에 도착',
-                            'Handed over to line-haul': '운송허브에 도착',
+                            'Arrived at line-haul office': '간선운송업체 도착',
+                            'Handed over to line-haul': '간선운송업체에 인계',
                             'Arrived at departure transport hub': '중국공항도착',
                             'Package shipped out from warehouse': '중국내배송출발',
                             'Sorry, there is no updated logistics information': '배송정보없음',
@@ -468,12 +468,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         # 상태를 확인하고 메모를 설정
                         for key, value in status_mapping.items():
                             if key in shipstep_txt:
-                                if isinstance(value, tuple):  # 두 가지 경우 중 하나를 선택
-                                    ship_memo = value
-                                else:
-                                    ship_memo = value
+                                ship_memo = value
                                 break
-                        else:  # 모든 조건을 만족하지 않을 경우
+                        else:
                             ship_memo = '집화전/기타상태'
                             
                         print(num+": "+ship_memo)
