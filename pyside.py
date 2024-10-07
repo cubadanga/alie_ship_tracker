@@ -52,7 +52,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.read_ini()
         self.update_text_signal.connect(self.update_text_browser)
-        print("Signal connected successfully.")
         
     def start(self):
         ship_url = 'https://www.aliexpress.com/p/order/index.html?tab=shipped'
@@ -393,7 +392,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     
                     try:
                         WebDriverWait(self.driver, 2).until(
-                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림
+                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림. 시간 내 못찾으면 타임아웃으로 넘겨버림.
                         )
                         print('버튼 찾음')
                         
@@ -428,13 +427,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     try:
                         status_mapping = {
                             'Package delivered': '배송완료',
-                            'Out for delivery': '국내배송출발',
+                            'Your package has been delivered' : '배송완료',
                             'Order canceled': '주문취소',
                             'Shipment canceled': '배송취소',
+                            'Delivery failed. Unable to deliver outside business hours.' : '배송실패-영업일아님',
                             'Delivery attempt unsuccessful': '배송실패',
+                            'Out for delivery': '국내배송출발',
+                            "We're preparing your package for delivery" : '국내배송출발',
                             'Arrived at destination country/region sorting center': '국내배송시작',
+                            'Arrived at sorting center in destination country/region' : '국내배송시작',
                             'Your package has left the sorting center in the destination country/region': '국내배송시작',
                             'Arrived at sorting center in destination country/region': '국내택배사인계',
+                            'Your package has been received by the local delivery company' : '국내택배사인계',
                             'Received by local delivery company': '국내택배사인계',
                             'Left from destination country/region sorting center': '국내택배사인계',
                             'Departed from customs': '한국세관반출',
@@ -465,7 +469,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Package ready for shipping from warehouse': '상품준비중',
                         }
 
-                        # 상태를 확인하고 메모를 설정
+                        # 상태를 확인하고 메모에 기록한다.
                         for key, value in status_mapping.items():
                             if key in shipstep_txt:
                                 ship_memo = value
