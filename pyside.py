@@ -446,13 +446,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Clearing Customs': '한국통관완료',
                             'Customs duties payment requested': '관세납부요청',
                             'Import customs clearance started': '한국통관시작',
-                            'Arrived at destination country/region sorting center': '한국도착통관전',
+                            'Arrived at destination country/region sorting center': '한국도착-통관준비',
                             'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center or Left from departure country/region' in logistic_txt else '중국수출통관중'),
                             'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
                             'Departed from departure country/region': '중국출발',
                             'Leaving from departure country/region': '중국출발',
                             'Left from departure country/region sorting center': '중국출발',
                             'Left from departure country/region': '중국출발',
+                            'Flight prepared to departure from country of destination': '중국출발대기',
                             'Export customs clearance complete': '중국수출통관완료',
                             'Export customs clearance started': '중국수출통관중',
                             'Arrived at line-haul office': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체 도착'),
@@ -466,6 +467,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Order has been packed into a large shipment and ready for the delivery company to pick up.': '대형화물로픽업준비',
                             'Received by logistics company': '중국택배사집화완료',
                             'Left from warehouse': '현지상품 출하',
+                            'Shipment info received by warehouse' : '배송정보확인',
                             'Package ready for shipping from warehouse': '상품준비중',
                         }
 
