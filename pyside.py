@@ -25,6 +25,7 @@ options = Options()
 options.add_experimental_option('detach',True)
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("disable-gpu")   # 가속 사용 x
+options.add_argument("--disable-images") # 이미지 표시 x
 options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
 options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
 options.add_experimental_option("excludeSwitches", ['enable-logging'])
@@ -135,8 +136,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         now = datetime.datetime.now()
         genTime = now.strftime("%y%m%d%H%M%S")
-        excel_filename = './output_file_'+genTime + '.xlsx'
-        excel_filename2 = './forUpload_file_'+genTime + '.xlsx'
+        excel_filename = './조회결과_'+genTime + '.xlsx'
+        excel_filename2 = './업로드용_'+genTime + '.xlsx'
         df_shiptrack.astype(str)
         df_shiptrack2.astype(str)
         df_shiptrack.to_excel(excel_filename,index=False)
@@ -510,113 +511,55 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         return self.list_shipmemo, self.list_tracking, tracking_num
     
-    def find_company(self,tracking_num):
-        
-        tMessage = "택배사 찾기 시작"
-        self.update_text_signal.emit(tMessage)
+    def find_company(self, tracking_num):
+        self.update_text_signal.emit("택배사 찾기 시작")
         QCoreApplication.processEvents()
-        
-        company_name = []
-        for num in tracking_num:
+
+        # 택배사 매핑 딕셔너리 형식
+        courier_mapping = {
+            '55': 'CJ대한통운', '56': 'CJ대한통운', '57': 'CJ대한통운', '58': 'CJ대한통운', 
+            '59': 'CJ대한통운', '75': 'CJ대한통운',
+            '51': '한진택배', '80': '한진택배',
+            '60': '우체국택배', '68': '우체국택배',
+            'EX': '업체직송',
+            'LB': 'EMS', 'LP': 'EMS', 'LX': 'EMS', 'SG': 'EMS', 'CN': 'EMS', 'CP': 'EMS',
+            'YP': 'EMS', 'TW': 'EMS',
+            'SYAE': '순유물류',
+            'SYRM': '업체직송',
+            '37': 'DHL',
+            'SY': 'CJ대한통운특송', 'EB': 'CJ대한통운특송', 'EV': 'CJ대한통운특송',
+            'EZ': 'CJ대한통운특송', 'UU': 'CJ대한통운특송',
+            '89': 'FEDEX',
+            'WJS': '웅지익스프레스', 'UG': '웅지익스프레스',
+            'WJ': '우진화물',
+            'Wl': '위니온로지스',
+            'EKC': '업체직송', 'UD': '업체직송', 'RU': '업제직송', 'NL': '업체직송', 'TY': '업체직송',
+            'PCTN': '범한판토스'
+        }
+
+        def get_company_name(num):
+            if num == '알리주문아님':
+                return ''
+            if num.startswith('31'):
+                return 'DHL' if len(num) == 10 else '롯데택배'
+            if num.startswith('7511'):
+                return 'yunda택배'
+            if num.startswith('LPO'):
+                return 'EMS'
             
-            if num != '알리주문아님':
-                if num[:2] =='55':
-                    company_name.append("CJ대한통운")
-                elif num[:4] == '7511':
-                    company_name.append("yunda택배")
-                elif num[:2] =='56':
-                    company_name.append("CJ대한통운")
-                elif num[:2] =='57':
-                    company_name.append("CJ대한통운")
-                elif num[:2] =='58':
-                    company_name.append("CJ대한통운")   
-                elif num[:2] =='75':
-                    company_name.append("CJ대한통운")
-                elif num[:2] =='51':
-                    company_name.append("한진택배")
-                elif num[:2] =='59':
-                    company_name.append("CJ대한통운")
-                elif num[:2] =='80':
-                    company_name.append("한진택배")
-                elif num[:2] =='60':
-                    company_name.append("우체국택배")
-                elif num[:2] =='68':
-                    company_name.append("우체국택배")
-                elif num[:2] =='EX':
-                    company_name.append("업체직송")
-                elif num[:2] =='LB':
-                    company_name.append("EMS")
-                elif num[:3] =='LPO':
-                    company_name.append("EMS")
-                elif num[:2] =='LP':
-                    company_name.append("EMS")
-                elif num[:2] =='LX':
-                    company_name.append("EMS")
-                elif num[:2] =='SG':
-                    company_name.append("EMS")
-                elif num[:2] =='CN':
-                    company_name.append("EMS")
-                elif num[:2] =='CP':
-                    company_name.append("EMS")
-                elif num[:4] =='SYAE':
-                    company_name.append("순유물류")
-                elif num[:4] =='SYRM':
-                    company_name.append("업체직송")
-                elif num[:2] =='31':
-                    if len(num) == 10:
-                        company_name.append("DHL")
-                    else:
-                        company_name.append("롯데택배")
-                elif num[:2] =='37':
-                    company_name.append("DHL") 
-                elif num[:2] =='SY':
-                    company_name.append("CJ대한통운특송") 
-                elif num[:2] =='EB':
-                    company_name.append("CJ대한통운특송")
-                elif num[:2] =='EV':
-                    company_name.append("CJ대한통운특송")
-                elif num[:2] =='EZ':
-                    company_name.append("CJ대한통운특송")
-                elif num[:2] =='UU':
-                    company_name.append("CJ대한통운특송")
-                elif num[:2] =='89':
-                    company_name.append("FEDEX")
-                elif num[:3] =='WJS':
-                    company_name.append("웅지익스프레스")
-                elif num[:2] =='WJ':
-                    company_name.append("우진화물")
-                elif num[:2] =='Wl':
-                    company_name.append("위니온로지스")
-                elif num[:3] =='EKC':
-                    company_name.append("업체직송")
-                elif num[:2] =='UG':
-                    company_name.append("웅지익스프레스")
-                elif num[:2] =='UD':
-                    company_name.append("업체직송")
-                elif num[:2] =='RU':
-                    company_name.append("업제직송")
-                elif num[:2] =='NL':
-                    company_name.append("업체직송")
-                elif num[:2] =='YP':
-                    company_name.append("EMS")
-                elif num[:2] =='LX':
-                    company_name.append("EMS")
-                elif num[:2] =='TW':
-                    company_name.append("EMS")
-                elif num[:4] =='PCTN':
-                    company_name.append("범한판토스")
-                elif num[:2] =='TY':
-                    company_name.append("업체직송")
-                else:
-                    company_name.append('')
-            else:
-                company_name.append('')
-        
-        tMessage = "택배사 찾기 완료"
-        self.update_text_signal.emit(tMessage)
+            for prefix_length in [4, 3, 2]:
+                prefix = num[:prefix_length]
+                if prefix in courier_mapping:
+                    return courier_mapping[prefix]
+            
+            return ''
+
+        company_name = [get_company_name(num) for num in tracking_num]
+
+        self.update_text_signal.emit("택배사 찾기 완료")
         QCoreApplication.processEvents()
-        
-        return company_name  
+
+        return company_name 
     
     @Slot(str)
     def update_text_browser(self, message):
