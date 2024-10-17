@@ -56,12 +56,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
     def start(self):
         ship_url = 'https://www.aliexpress.com/p/order/index.html?tab=shipped'
-           
-        alie_ID = self.lineEdit_id.text()
-        alie_PW = self.lineEdit_pw.text()
-        exUrl = self.lineEdit_path.text()
-        combo_date = self.combo_date.currentText()
-        delay_date = int(combo_date)
         self.random_sec = random.uniform(1,2.5)
         self.random_sec2 = random.uniform(1,3)
         start_time = time.time()
@@ -70,6 +64,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
         
+        alie_ID = self.lineEdit_id.text()
+        alie_PW = self.lineEdit_pw.text()
         
         if alie_ID == "" or alie_PW == "":
             tMessage ="아이디 또는 패스워드를 입력해 주세요."
@@ -79,6 +75,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             print(alie_ID)
             print(alie_PW)
+        
+        exUrl = self.lineEdit_path.text()
         
         if exUrl =="":
             tMessage ="배송리스트 엑셀 파일을 선택해 주세요."
@@ -91,6 +89,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.write_ini(self.ini_filename, self.section_name, self.key_password, alie_PW)
         
         self.filter_state()
+        
+        combo_date = self.combo_date.currentText()
+        delay_date = int(combo_date)
         
         df = pd.DataFrame()
         df = self.read_files(exUrl, self.chk_state,delay_date)
@@ -110,6 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument("disable-gpu")   # 가속 사용 x
         options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
+        options.add_argument("--disable-images") # 이미지 표시 x
         options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
         options.add_experimental_option("excludeSwitches", ['enable-logging'])
 
@@ -131,7 +133,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack['상태메모'] = self.list_shipmemo
         df_shiptrack['추적Url'] = self.list_tracking
         
-        ship_condition = ['한국통관중', '관세납부요청','한국통관완료','한국세관반출','배송실패','국내택배사인계','국내배송시작','배송완료']
+        ship_condition = ['한국통관중', '관세납부요청','한국통관완료','한국세관반출','배송실패','국내택배사인계','국내배송시작','국내배송출발','배송완료']
         df_shiptrack2 = df_shiptrack.loc[df_shiptrack['상태메모'].isin(ship_condition)]
         
         now = datetime.datetime.now()
