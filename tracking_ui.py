@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'trackingosEqSC.ui'
+## Form generated from reading UI file 'trackingQlwhXJ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.1
 ##
@@ -19,7 +19,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QHBoxLayout,
     QLabel, QLineEdit, QMainWindow, QMenuBar,
     QPushButton, QSizePolicy, QStatusBar, QTextBrowser,
     QVBoxLayout, QWidget)
-    
+import rc_resources
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -82,6 +83,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.combo_date = QComboBox(self.verticalLayoutWidget_4)
+        self.combo_date.addItem("")
         self.combo_date.addItem("")
         self.combo_date.addItem("")
         self.combo_date.addItem("")
@@ -193,9 +195,10 @@ class Ui_MainWindow(object):
         self.lbl_subtitle2.setText(QCoreApplication.translate("MainWindow", u"\ud574\uc678\uc8fc\ubb38\ubc88\ud638 \uc5d1\uc140\ud30c\uc77c \uc120\ud0dd", None))
         self.btn_fileopen.setText(QCoreApplication.translate("MainWindow", u"\ud30c\uc77c\uc5f4\uae30", None))
         self.chkBox_filter.setText(QCoreApplication.translate("MainWindow", u"\uae30\ud0c0\ud0dd\ubc30, SLX, \uc9c1\uc811\uc804\ub2ec\ub9cc \ubd88\ub7ec\uc624\uae30", None))
-        self.combo_date.setItemText(0, QCoreApplication.translate("MainWindow", u"7", None))
-        self.combo_date.setItemText(1, QCoreApplication.translate("MainWindow", u"5", None))
-        self.combo_date.setItemText(2, QCoreApplication.translate("MainWindow", u"3", None))
+        self.combo_date.setItemText(0, QCoreApplication.translate("MainWindow", u"3", None))
+        self.combo_date.setItemText(1, QCoreApplication.translate("MainWindow", u"1", None))
+        self.combo_date.setItemText(2, QCoreApplication.translate("MainWindow", u"5", None))
+        self.combo_date.setItemText(3, QCoreApplication.translate("MainWindow", u"7", None))
 
         self.label.setText(QCoreApplication.translate("MainWindow", u"\uc77c \uacbd\uacfc\ub41c \uc8fc\ubb38\ub9cc \uc870\ud68c (\uc8fc\ubb38\uc77c \uae30\uc900)", None))
         self.lbl_subTitle1.setText(QCoreApplication.translate("MainWindow", u"\uc54c\ub9ac \ub85c\uadf8\uc778 \uc815\ubcf4", None))

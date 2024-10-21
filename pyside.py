@@ -5,6 +5,8 @@ import pandas as pd
 import time
 from datetime import timedelta
 import re
+import os
+import xlrd
 import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -18,20 +20,7 @@ import pyautogui
 import configparser
 from bs4 import BeautifulSoup
 import datetime
- # 크롬드라이버 자동업데이트
-from webdriver_manager.chrome import ChromeDriverManager
-#브라우저 자동꺼짐 방지
-options = Options()
-options.add_experimental_option('detach',True)
-options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("disable-gpu")   # 가속 사용 x
-options.add_argument("--disable-images") # 이미지 표시 x
-options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
-options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
-options.add_experimental_option("excludeSwitches", ['enable-logging'])
-
-
-
+from webdriver_manager.chrome import ChromeDriverManager  # 크롬드라이버 자동업데이트
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     service = None
@@ -43,7 +32,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     key_password = 'alie_password'
     list_tracking = []
     list_shipmemo = []
-    update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 한다.
+    update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 함.
     chk_state = int
     random_sec = random.uniform(1.5,3)
     random_sec2 = random.uniform(1,3)
@@ -94,9 +83,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         delay_date = int(combo_date)
         
         df = pd.DataFrame()
-        df = self.read_files(exUrl, self.chk_state,delay_date)
+        df = self.read_files(exUrl, self.chk_state,delay_date) #특정 송장번호(직접전달, slx택배, 기타택배)만 조회
         df_shiptrack = pd.DataFrame()
-        df_shiptrack = df[['주문일','주문고유코드','해외주문번호','수령자']]
+        
+        try:
+         df_shiptrack = df[['주문일','주문고유코드','해외주문번호','수령자']] #특정 필드만 추출하여 새 테이블에 담는다
+         
+        except:
+            tMessage ="불러온 엑셀파일의 필드명을 확인해 주세요."
+            self.update_text_signal.emit(tMessage)
+            QCoreApplication.processEvents()  
+           
         df_shiptrack = df_shiptrack.astype(str)
         input_list = df_shiptrack['해외주문번호'].values.tolist()
         total_cnt = len(input_list)
@@ -108,7 +105,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #브라우저 자동꺼짐 방지
         options = Options()
         options.add_experimental_option('detach',True)
-        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--disable-blink-features=AutomationControlled") #셀레니움으로 조작하고 있다는 사실을 감춤
         options.add_argument("disable-gpu")   # 가속 사용 x
         options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
         options.add_argument("--disable-images") # 이미지 표시 x
@@ -231,7 +228,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         with open(filename, 'w', encoding='utf-8') as configfile:
             self.config.write(configfile)
         
-    def read_files(self,exUrl,chk_state,delay_date):
+    def read_files(self, exUrl, chk_state, delay_date):
         delay_date = delay_date
         today = datetime.datetime.today()
         days_ago = today - datetime.timedelta(days=delay_date)
@@ -239,25 +236,72 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         tMessage = "엑셀파일 읽기 시작"
         self.update_text_signal.emit(tMessage)
         QCoreApplication.processEvents()
-        df = pd.read_excel(exUrl,header=0,dtype={'수령자': str, '해외주문번호': str, '주문고유코드': str})
-        df['주문일'] = pd.to_datetime(df['주문일'])
         
-        if chk_state == 0:
-            target = ['SLX택배', '기타택배', '직접전달']
-            df_true = df.loc[df['택배사'].isin(target)]
-            df_true2 = df_true[df_true["주문일"] <= days_ago]
-            return df_true2
+        try:  
+            df = pd.read_excel(exUrl, header=0, dtype={'수령자': str, '해외주문번호': str, '주문고유코드': str})
+            df['주문일'] = pd.to_datetime(df['주문일'])
+            
+            if chk_state == 0:
+                target = ['SLX택배', '기타택배', '직접전달']
+                df_true = df.loc[df['택배사'].isin(target)]
+                df_true2 = df_true[df_true["주문일"] <= days_ago]
+                return df_true2
+            
+            else:
+                return df
+            
+        except FileNotFoundError:
+            error_message = f"* 파일을 찾을 수 없습니다: {exUrl}"
+            self.update_text_signal.emit(error_message)
         
-        else:
-            return df
-         
+        except PermissionError:
+            error_message = f"* 파일에 접근할 권한이 없습니다: {exUrl}"
+            self.update_text_signal.emit(error_message)
+        
+        except pd.errors.EmptyDataError:
+            error_message = "* 엑셀 파일이 비어 있습니다."
+            self.update_text_signal.emit(error_message)
+        
+        except pd.errors.ParserError:
+            error_message = "* 엑셀 파일 파싱 중 오류가 발생했습니다. 파일 형식을 확인해주세요."
+            self.update_text_signal.emit(error_message)
+        
+        except KeyError as e:
+            error_message = f"* 엑셀 파일에서 필요한 열을 찾을 수 없습니다: {str(e)}"
+            self.update_text_signal.emit(error_message)
+            
+        except Exception as e:
+            error_message = f"* 예상치 못한 오류가 발생했습니다: {str(e)}"
+            self.update_text_signal.emit(error_message)
+        
+        return None
+             
+
     def filedialog_open(self):
-        fname=QFileDialog.getOpenFileName(self,'','',"xlsx(*.xlsx)")
+        fname = QFileDialog.getOpenFileName(self, '', '', "Excel Files (*.xlsx *.xls)")
         if fname[0]:
             file_path = fname[0]
             self.lineEdit_path.setText(file_path)
             
-        else:pass
+            _, file_extension = os.path.splitext(file_path)
+            
+            try:
+                if file_extension.lower() == '.xlsx':
+                    df = pd.read_excel(file_path, engine='openpyxl')
+                elif file_extension.lower() == '.xls':
+                    df = pd.read_excel(file_path, engine='xlrd')
+                else:
+                    raise ValueError("지원되지 않는 파일 형식입니다.")
+                
+                print(f"파일을 성공적으로 읽었습니다. 행 수: {len(df)}")
+                
+            except Exception as e:
+                error_message = f"파일 읽기 오류: {str(e)}"
+                self.update_text_signal.emit(error_message)
+                print(error_message)
+        else:
+            pass
+
             
     def sign_In(self,ship_url, alie_ID, alie_PW):
         self.driver.get(ship_url)
@@ -403,7 +447,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         btn_view_more.click() #버튼 클릭
                     
                     except TimeoutException:
-                        print('버튼 로딩 타임아웃, 버튼을 찾지 못 찾음.')  # 타임아웃 발생 시
+                        print('버튼 로딩 타임아웃, 버튼을 찾지 못 함.')  # 타임아웃 발생 시
 
                     except Exception as e:
                         print(f'기타 오류 발생: {e}')

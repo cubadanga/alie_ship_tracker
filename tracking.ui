@@ -124,7 +124,12 @@
          </property>
          <item>
           <property name="text">
-           <string>7</string>
+           <string>3</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1</string>
           </property>
          </item>
          <item>
@@ -134,7 +139,7 @@
          </item>
          <item>
           <property name="text">
-           <string>3</string>
+           <string>7</string>
           </property>
          </item>
         </widget>
