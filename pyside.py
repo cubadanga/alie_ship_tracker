@@ -14,6 +14,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import TimeoutException
 import pyautogui
@@ -42,6 +43,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.read_ini()
         self.update_text_signal.connect(self.update_text_browser)
+        tMessage ="엑셀 파일을 넣어주세요."
+        self.update_text_signal.emit(tMessage)
+        QCoreApplication.processEvents()
+
         
     def start(self):
         ship_url = 'https://www.aliexpress.com/p/order/index.html?tab=shipped'
@@ -109,11 +114,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options.add_argument("disable-gpu")   # 가속 사용 x
         options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
         options.add_argument("--disable-images") # 이미지 표시 x
+        options.add_argument("--start-maximized") # 브라우저 최대
         options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
-        options.add_experimental_option("excludeSwitches", ['enable-logging'])
+        options.add_experimental_option("excludeSwitches", ['enable-logging', 'enable-automation'])#자동화 되고 있다는 표시 가림
+        options.add_argument('--no-sandbox') #웹사이트가 봇 탐지를 위해 사용하는 보안 검사를 우회
+        options.add_experimental_option('useAutomationExtension', False) #Chrome의 자동화 확장 프로그램을 비활성화 #셀레니움 자동화 관련 끔
+        
+        prefs = {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False,
+        
+        # 추가적인 알림 비활성화 (선택적)
+        "profile.default_content_setting_values.notifications": 2,  # 알림 차단
+        "profile.default_content_setting_values.media_stream_mic": 2,  # 마이크 접근 차단
+        "profile.default_content_setting_values.media_stream_camera": 2,  # 카메라 접근 차단
+        "profile.default_content_setting_values.geolocation": 2  # 위치 정보 접근 차단
+        }
+        options.add_experimental_option("prefs", prefs)
 
         self.service = Service()
         self.driver = webdriver.Chrome(service=self.service, options=options)
+        self.wait = WebDriverWait(self.driver, 10)
         self.sign_In(ship_url,alie_ID,alie_PW)
         
         orderid_list = []
@@ -304,11 +325,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             
     def sign_In(self,ship_url, alie_ID, alie_PW):
+        self.wait = WebDriverWait(self.driver, 10)
         self.driver.get(ship_url)
         self.driver.implicitly_wait(self.random_sec)
 
         get_url = self.driver.current_url
-        #브라우저에서 현재 url을 가져와 로그인 페이지인지 확인
         
         if 'https://login.aliexpress.com' not in get_url:
             self.driver.implicitly_wait(self.random_sec)
@@ -316,8 +337,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         else:
             try:
-                judge = self.driver.find_element(By.CLASS_NAME,'fm-sns-new-btns')
-                print(f"{judge}: 뉴 유아이")
                 input_id = self.driver.find_element(By.CLASS_NAME,'comet-input-label-content')
                 input_id.click()
                 pyautogui.write(alie_ID, interval=0.03)
@@ -331,32 +350,64 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
                 input_pass = self.driver.find_element(By.ID,'fm-login-password')
                 input_pass.click()
-                pyautogui.write(alie_PW, interval=0.02)
+                pyautogui.write(alie_PW, interval=0.05)
                 time.sleep(self.random_sec)
                 
                 btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
                 btn_signin.click()
-                time.sleep(self.random_sec)
-                return
-            except:
-                print("올드 유아이")
-                input_id = self.driver.find_element(By.ID,'fm-login-id')
-                input_id.click()
-                pyautogui.write(alie_ID, interval=0.03)
-                pyautogui.press('tab')
-                time.sleep(self.random_sec)
+                time.sleep(3)  # 로그인 버튼 클릭 후 충분한 대기 시간
                 
-                input_pass = self.driver.find_element(By.ID,'fm-login-password')
-                input_pass.click()
-                pyautogui.write(alie_PW, interval=0.02)
-                time.sleep(self.random_sec)
-                
-                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
-                btn_signin.click()
-                time.sleep(self.random_sec)
-            return
-        
-        
+                try:
+                    wait = WebDriverWait(self.driver, 7)
+                    iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
+                    
+                    for iframe in iframes:
+                        try:
+                            self.driver.switch_to.frame(iframe)
+                            # 다양한 선택자로 슬라이더 찾기 시도
+                            slider_selectors = [
+                                (By.ID, "nc_1_n1z"),
+                                (By.CLASS_NAME, "nc-lang-cnt"),
+                                (By.CLASS_NAME, "nc_iconfont"),
+                                (By.CSS_SELECTOR, "#nc_1_n1z"),
+                                (By.XPATH, "//span[contains(@class, 'nc_iconfont')]"),
+                                (By.XPATH, "//div[contains(@class, 'nc_scale')]//span")
+                            ]
+                            
+                            for selector_type, selector_value in slider_selectors:
+                                try:
+                                    slider = wait.until(EC.presence_of_element_located((selector_type, selector_value)))
+                                    if slider and slider.is_displayed():
+                                        # 슬라이더 조작
+                                        action = ActionChains(self.driver)
+                                        action.click_and_hold(slider)
+                                        move_distance = 500
+                                        steps = 10
+                                        for _ in range(steps):
+                                            action.move_by_offset(move_distance/steps, 0)
+                                            time.sleep(random.uniform(0.1, 0.3))
+                                        action.release()
+                                        action.perform()
+                                        time.sleep(2)  # 슬라이더 완료 후 대기
+                                        break
+                                except:
+                                    continue
+                            
+                            self.driver.switch_to.default_content()
+                            break
+                            
+                        except:
+                            self.driver.switch_to.default_content()
+                            continue
+                            
+                except Exception as e:
+                    print(f"슬라이더 처리 중 오류 발생: {str(e)}")
+                    # 디버깅을 위한 스크린샷 저장
+                    self.driver.save_screenshot("slider_error.png")
+                    
+            except Exception as e:
+                print(f"로그인 처리 중 오류 발생: {str(e)}")
+    
     def shipped_parcing(self):
         self.driver.implicitly_wait(30)
         # 버튼을 몇 번 눌러야 하는지 계산 
@@ -495,12 +546,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Import customs clearance started': '한국통관시작',
                             'Arrived at destination country/region sorting center': '한국도착-통관준비',
                             'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center or Left from departure country/region' in logistic_txt else '중국수출통관중'),
-                            'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
+                            'Customs clearance complete': ('한국통관완��' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
                             'Departed from departure country/region': '중국출발',
                             'Leaving from departure country/region': '중국출발',
                             'Left from departure country/region sorting center': '중국출발',
                             'Left from departure country/region': '중국출발',
                             'Flight prepared to departure from country of destination': '중국출발대기',
+                            'Package arrived at airport':'중국공항도착',
                             'Export customs clearance complete': '중국수출통관완료',
                             'Export customs clearance started': '중국수출통관중',
                             'Arrived at line-haul office': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체 도착'),
@@ -587,7 +639,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if num == '알리주문아님':
                 return ''
             if num.startswith('31'):
-                return 'DHL' if len(num) == 10 else '롯데택배'
+                return 'DHL' if len(num) == 10 else '롯��택배'
             if num.startswith('7511'):
                 return 'yunda택배'
             if num.startswith('LPO'):
