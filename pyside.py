@@ -155,7 +155,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         df_shiptrack2 = df_shiptrack.loc[df_shiptrack['상태메모'].isin(ship_condition)]
         
         now = datetime.datetime.now()
-        genTime = now.strftime("%y%m%d%H%M%S")
+        genTime = now.strftime("%y-%m-%d_%H-%M-%S")
         excel_filename = './조회결과_'+genTime + '.xlsx'
         excel_filename2 = './업로드용_'+genTime + '.xlsx'
         df_shiptrack.astype(str)
@@ -539,14 +539,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Your package has been received by the local delivery company' : '국내택배사인계',
                             'Received by local delivery company': '국내택배사인계',
                             'Left from destination country/region sorting center': '국내택배사인계',
+                            'Your package encountered an unforseen issue on its way to the distribution center in the destination country/region': '확인필요-세관통관후 오류',
                             'Departed from customs': '한국세관반출',
                             'Left from customs': '한국세관반출',
                             'Clearing Customs': '한국통관완료',
                             'Customs duties payment requested': '관세납부요청',
                             'Import customs clearance started': '한국통관시작',
+                            'Your package arrived at local airport': '한국공항도착',
                             'Arrived at destination country/region sorting center': '한국도착-통관준비',
                             'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center or Left from departure country/region' in logistic_txt else '중국수출통관중'),
-                            'Customs clearance complete': ('한국통관완��' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
+                            'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
                             'Departed from departure country/region': '중국출발',
                             'Leaving from departure country/region': '중국출발',
                             'Left from departure country/region sorting center': '중국출발',
@@ -639,7 +641,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if num == '알리주문아님':
                 return ''
             if num.startswith('31'):
-                return 'DHL' if len(num) == 10 else '롯��택배'
+                return 'DHL' if len(num) == 10 else '롯대택배'
             if num.startswith('7511'):
                 return 'yunda택배'
             if num.startswith('LPO'):
