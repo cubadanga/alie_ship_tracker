@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QFileDialog
-from PySide6.QtCore import QCoreApplication, QThread, Signal, Slot
+from PySide6.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PySide6.QtCore import QCoreApplication, Signal, Slot
 from tracking_ui import Ui_MainWindow
 import pandas as pd
 import time
@@ -351,10 +351,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 
                 btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
                 btn_signin.click()
-                time.sleep(3)  # 로그인 버튼 클릭 후 충분한 대기 시간
+                time.sleep(2)  # 로그인 버튼 클릭 후 충분한 대기 시간
                 
                 try:
-                    wait = WebDriverWait(self.driver, 7)
+                    wait = WebDriverWait(self.driver, 10)
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+                    
                     iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
                     
                     for iframe in iframes:
@@ -367,7 +369,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 (By.CLASS_NAME, "nc_iconfont"),
                                 (By.CSS_SELECTOR, "#nc_1_n1z"),
                                 (By.XPATH, "//span[contains(@class, 'nc_iconfont')]"),
-                                (By.XPATH, "//div[contains(@class, 'nc_scale')]//span")
+                                (By.XPATH, "//div[contains(@class, 'nc_scale')]//span")                                
                             ]
                             # 슬라이더 조작하기
                             for selector_type, selector_value in slider_selectors:
@@ -377,8 +379,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                         
                                         action = ActionChains(self.driver)
                                         action.click_and_hold(slider)
-                                        move_distance_x = 500  # x축 이동 거리
-                                        steps = 60
+                                        move_distance_x = 600  # x축 이동 거리
+                                        steps = 65
                                         for _ in range(steps):
                                             # 사람이 하는 것처럼 위아래로 랜덤으로 흔들면 통과함
                                             random_y = random.uniform(-2, 2)
@@ -388,10 +390,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                 move_distance_x/steps,  # x축 이동 (일정)
                                                 random_y               # y축 이동 (랜덤)
                                             )
-                                            time.sleep(random.uniform(0.02, 0.04))
-                                        action.release()
+                                            time.sleep(random.uniform(0.02, 0.3))
+                                       
                                         action.perform()
                                         time.sleep(2)
+                                        action.release().perform()
                                         break
                                 except:
                                     continue
@@ -645,7 +648,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             'WJ': '우진화물',
             'Wl': '위니온로지스',
             'EKC': '업체직송', 'UD': '업체직송', 'RU': '업제직송', 'NL': '업체직송', 'TY': '업체직송',
-            'PCTN': '범한판토스'
+            'PCTN': '범한판토스',
+            '1Z': 'UPS'
         }
 
         def get_company_name(num):

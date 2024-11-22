@@ -1,2 +1,25 @@
 pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.2 pyside.py
 버전표기 = 0.기능변경.데이터추가
+
+옵션 여러개 넣기 
+
+pyinstaller -w -F -n tracker_v0.5.3 `
+--icon=icon.png `
+--upx-dir="D:\upx-4.2.4-win64" `
+--clean `
+--exclude-module matplotlib `
+  --exclude-module scipy `
+  --exclude-module tkinter `
+  --exclude-module PIL `
+  --exclude-module PyQt5 `
+  --exclude-module PyQt6 `
+  --exclude-module IPython `
+  --exclude-module notebook `
+  --exclude-module qtconsole `
+  --exclude-module jupyter_client `
+  --exclude-module jupyter_core `
+  --exclude-module nbconvert `
+  --exclude-module nbformat `
+  --exclude-module ipykernel `
+  --exclude-module ipython_genutils `
+pyside.py
