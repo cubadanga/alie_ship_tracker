@@ -4,10 +4,8 @@ from tracking_ui import Ui_MainWindow
 import pandas as pd
 import time
 from datetime import timedelta
-import re
-import os
-import xlrd
 import random
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -35,8 +33,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     list_shipmemo = []
     update_text_signal = Signal(str) ##셀레니움이 비동기로 작동하기 때문에 셀레니움 작업중에 내용을 ui에 표시하려면 PyQt에서 시그널 및 슬롯을 사용하여 Selenium 관련 코드와 GUI 업데이트를 연결해야 함.
     chk_state = int
-    random_sec = random.uniform(1.5,3)
-    random_sec2 = random.uniform(1,3)
     
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -373,22 +369,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                 (By.XPATH, "//span[contains(@class, 'nc_iconfont')]"),
                                 (By.XPATH, "//div[contains(@class, 'nc_scale')]//span")
                             ]
-                            
+                            # 슬라이더 조작하기
                             for selector_type, selector_value in slider_selectors:
                                 try:
                                     slider = wait.until(EC.presence_of_element_located((selector_type, selector_value)))
                                     if slider and slider.is_displayed():
-                                        # 슬라이더 조작
+                                        
                                         action = ActionChains(self.driver)
                                         action.click_and_hold(slider)
-                                        move_distance = 500
-                                        steps = 10
+                                        move_distance_x = 500  # x축 이동 거리
+                                        steps = 60
                                         for _ in range(steps):
-                                            action.move_by_offset(move_distance/steps, 0)
-                                            time.sleep(random.uniform(0.1, 0.3))
+                                            # 사람이 하는 것처럼 위아래로 랜덤으로 흔들면 통과함
+                                            random_y = random.uniform(-2, 2)
+                                            
+                                            # x와 y 좌표 모두 이동
+                                            action.move_by_offset(
+                                                move_distance_x/steps,  # x축 이동 (일정)
+                                                random_y               # y축 이동 (랜덤)
+                                            )
+                                            time.sleep(random.uniform(0.02, 0.04))
                                         action.release()
                                         action.perform()
-                                        time.sleep(2)  # 슬라이더 완료 후 대기
+                                        time.sleep(2)
                                         break
                                 except:
                                     continue
@@ -409,6 +412,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 print(f"로그인 처리 중 오류 발생: {str(e)}")
     
     def shipped_parcing(self):
+        import re
         self.driver.implicitly_wait(30)
         # 버튼을 몇 번 눌러야 하는지 계산 
         btn_shipped = self.driver.find_element(By.XPATH,'//*[@id="root"]/div[1]/div[1]/div[1]/div[1]/div/div/div[4]')
@@ -536,6 +540,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Arrived at sorting center in destination country/region' : '국내배송시작',
                             'Your package has left the sorting center in the destination country/region': '국내배송시작',
                             'Arrived at sorting center in destination country/region': '국내택배사인계',
+                            'Your package arrived at local Facility': '국내택배사인계',
                             'Your package has been received by the local delivery company' : '국내택배사인계',
                             'Received by local delivery company': '국내택배사인계',
                             'Left from destination country/region sorting center': '국내택배사인계',
@@ -545,11 +550,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Clearing Customs': '한국통관완료',
                             'Customs duties payment requested': '관세납부요청',
                             'Import customs clearance started': '한국통관시작',
+                            'Arrived at customs': '한국통관준비',
                             'Your package arrived at local airport': '한국공항도착',
                             'Arrived at destination country/region sorting center': '한국도착-통관준비',
                             'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center or Left from departure country/region' in logistic_txt else '중국수출통관중'),
                             'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
                             'Departed from departure country/region': '중국출발',
+                            'Flight departure': '중국출발',
+                            'Awaiting flight': '중국출발대기',
                             'Leaving from departure country/region': '중국출발',
                             'Left from departure country/region sorting center': '중국출발',
                             'Left from departure country/region': '중국출발',
@@ -560,6 +568,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Arrived at line-haul office': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체 도착'),
                             'Handed over to line-haul': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체에 인계'),
                             'Arrived at departure transport hub': '중국공항도착',
+                            'Your package arrived at airport. Awaiting transit.' : '중국공항도착대기',
                             'Package shipped out from warehouse': '중국내배송출발',
                             'Sorry, there is no updated logistics information': '배송정보없음',
                             'Processing at sorting center': '중국내배송중',
@@ -570,6 +579,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Left from warehouse': '현지상품 출하',
                             'Shipment info received by warehouse' : '배송정보확인',
                             'Package ready for shipping from warehouse': '상품준비중',
+                            'Ready to be shipped by warehouse' : '상품준비중',
+                            'Your order is being packed' : '상품준비중',
                         }
 
                         # 상태를 확인하고 메모에 기록한다.

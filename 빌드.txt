@@ -1,1 +1,2 @@
-pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.0 pyside.py
+pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.2 pyside.py
+버전표기 = 0.기능변경.데이터추가
