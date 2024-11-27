@@ -353,20 +353,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 btn_signin.click()
                 time.sleep(2)  # 로그인 버튼 클릭 후 충분한 대기 시간
                 
+                '''
                 try:
-                    wait = WebDriverWait(self.driver, 10)
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, "iframe")))
+                    wait = WebDriverWait(self.driver, 5)
+                    wait.until(EC.presence_of_element_located((By.ID, "baxia-dialog-content")))
                     
-                    iframes = self.driver.find_elements(By.TAG_NAME, "iframe")
+                    iframes = self.driver.find_elements(By.ID, "baxia-dialog-content")
                     
                     for iframe in iframes:
                         try:
                             self.driver.switch_to.frame(iframe)
                             # 다양한 선택자로 슬라이더 찾기 시도
                             slider_selectors = [
-                                (By.ID, "nc_1_n1z"),
-                                (By.CLASS_NAME, "nc-lang-cnt"),
                                 (By.CLASS_NAME, "nc_iconfont"),
+                                (By.ID, "nc_1_n1z"),
+                                (By.CLASS_NAME, "nc-lang-cnt"),                               
                                 (By.CSS_SELECTOR, "#nc_1_n1z"),
                                 (By.XPATH, "//span[contains(@class, 'nc_iconfont')]"),
                                 (By.XPATH, "//div[contains(@class, 'nc_scale')]//span")                                
@@ -379,41 +380,50 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                         
                                         action = ActionChains(self.driver)
                                         action.click_and_hold(slider)
-                                        move_distance_x = 600  # x축 이동 거리
-                                        steps = 65
-                                        for _ in range(steps):
-                                            # 사람이 하는 것처럼 위아래로 랜덤으로 흔들면 통과함
-                                            random_y = random.uniform(-2, 2)
+                                        move_distance_x = 760  # x축 이동 거리
+                                        steps = 30  # 고정된 스텝 수
+                                        move_duration = 2  # 슬라이더 이동 시간 (초)
+                                        sleep_time = move_duration / steps  # 각 스텝 사이의 대기 시간
+
+                                        for step in range(steps):
+                                            # 랜덤한 y축 이동
+                                            random_y = random.uniform(-25, 15)  # y축에서의 랜덤 이동
                                             
-                                            # x와 y 좌표 모두 이동
+                                            # 가속도를 주기 위해 이동 거리 계산
+                                            acceleration_factor = (step + 1) / steps  # 1에서 steps까지 비율
+                                            move_x = (move_distance_x / steps) * acceleration_factor  # 가속 적용
+
+                                            # x축과 y축 모두 이동
                                             action.move_by_offset(
-                                                move_distance_x/steps,  # x축 이동 (일정)
-                                                random_y               # y축 이동 (랜덤)
+                                                move_x,  # 가속이 적용된 x축 이동
+                                                random_y  # y축 이동 (랜덤)
                                             )
-                                            time.sleep(random.uniform(0.02, 0.3))
+                                            time.sleep(sleep_time)  # 각 스텝 사이의 대기 시간
                                        
                                         action.perform()
-                                        time.sleep(2)
+                                        time.sleep(1)  # 슬라이더 이동 후 대기 시간
                                         action.release().perform()
                                         break
-                                except:
+                                except Exception as e:
+                                    print(f"슬라이더 처리 중 오류 발생: {str(e)}")
                                     continue
                             
                             self.driver.switch_to.default_content()
                             break
                             
-                        except:
+                        except Exception as e:
                             self.driver.switch_to.default_content()
                             continue
-                            
+          
                 except Exception as e:
-                    print(f"슬라이더 처리 중 오류 발생: {str(e)}")
+                    print(f"로그인 처리 중 오류 발생: {str(e)}")
                     # 디버깅을 위한 스크린샷 저장
                     self.driver.save_screenshot("slider_error.png")
-                    
+                '''     
             except Exception as e:
                 print(f"로그인 처리 중 오류 발생: {str(e)}")
-    
+                self.driver.save_screenshot("login_error.png")
+                
     def shipped_parcing(self):
         import re
         self.driver.implicitly_wait(30)
@@ -615,7 +625,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.list_shipmemo.append("알리주문아님")
                     self.list_tracking.append('알리주문아님')
                     tracking_num.append('')
-                    print(f'{cnt}번: 배송중이 아닌 알리 외 주문번호: {num}')
+                    print(f'{cnt}번: 배송중이 아 알리 외 주문번호: {num}')
                     time.sleep(self.random_sec)
             cnt += 1    
 
