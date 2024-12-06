@@ -506,14 +506,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.driver.get(tracking_url)
                     
                     try:
-                        WebDriverWait(self.driver, 2).until(
-                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림. 시간 내 못찾으면 타임아웃으로 넘겨버림.
+                        WebDriverWait(self.driver, 4).until(
+                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[4]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림. 시간 내 못찾으면 타임아웃으로 넘겨버림.
                         )
-                        print('버튼 찾음')
                         
                         btn_view_more = self.driver.find_element(By.XPATH,"//div[@class='logistic-info-v2--viewMoreBtn--iuFWB5S']") #view more 버튼을 찾는다.
                         btn_view_more.click() #버튼 클릭
-                    
+                        print('more버튼 누름')
+                        
                     except TimeoutException:
                         print('버튼 로딩 타임아웃, 버튼을 찾지 못 함.')  # 타임아웃 발생 시
 
@@ -525,9 +525,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         logistic_sub = logistic_top.find_elements(By.XPATH, ".//div[text()]") #배송 상태 하위
                         
                         for logistic_sub in logistic_sub:
-                            logistic_txt = logistic_sub.text
+                            logistic_txt = logistic_sub.text 
                         
-                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="root"]/div/div[3]/div[2]/div/span[2]') #송장번호 획득
+                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="root"]/div/div[4]/div[2]/div/span[2]') #송장번호 획득
                         tr_txt = tr_num.text
                         
                         ship_step = self.driver.find_element(By.XPATH,'//div[@class="logistic-info-v2--nodeDesc--2U3A3Yt"]') #배송상태 획득
@@ -659,14 +659,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             'Wl': '위니온로지스',
             'EKC': '업체직송', 'UD': '업체직송', 'RU': '업제직송', 'NL': '업체직송', 'TY': '업체직송',
             'PCTN': '범한판토스',
-            '1Z': 'UPS'
+            '1Z': 'UPS',
+            '31': '롯데글로벌로지스'
         }
 
         def get_company_name(num):
             if num == '알리주문아님':
                 return ''
             if num.startswith('31'):
-                return 'DHL' if len(num) == 10 else '롯대택배'
+                return 'DHL' if len(num) == 10 else '롯데택배'
             if num.startswith('7511'):
                 return 'yunda택배'
             if num.startswith('LPO'):

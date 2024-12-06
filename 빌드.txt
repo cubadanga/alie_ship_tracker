@@ -3,7 +3,7 @@ pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.4 pyside.py
 
 옵션 여러개 넣기 
 
-pyinstaller -w -F -n tracker_v0.5.4 `
+pyinstaller -w -F -n tracker_v0.5.5 `
 --icon=icon.png `
 --upx-dir="D:\upx-4.2.4-win64" `
 --clean `
