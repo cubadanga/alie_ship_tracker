@@ -506,28 +506,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.driver.get(tracking_url)
                     
                     try:
-                        WebDriverWait(self.driver, 4).until(
-                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[4]/div[3]/div[2]')) #버튼이 로딩될 때까지 기다림. 시간 내 못찾으면 타임아웃으로 넘겨버림.
+                        WebDriverWait(self.driver, 2).until(
+                            EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div[3]/div[3]/div[2]/div')) #버튼이 로딩될 때까지 기다림. 시간 내 못찾으면 타임아웃으로 넘겨버림.
                         )
                         
                         btn_view_more = self.driver.find_element(By.XPATH,"//div[@class='logistic-info-v2--viewMoreBtn--iuFWB5S']") #view more 버튼을 찾는다.
                         btn_view_more.click() #버튼 클릭
-                        print('more버튼 누름')
                         
                     except TimeoutException:
                         print('버튼 로딩 타임아웃, 버튼을 찾지 못 함.')  # 타임아웃 발생 시
 
                     except Exception as e:
                         print(f'기타 오류 발생: {e}')
+                    
+                    logistic_txt = ""
                                        
                     try:                       
                         logistic_top = self.driver.find_element(By.CLASS_NAME, "logistic-info-v2--track--1nqL7Vl") #배송 상태 가장 상위 클래스
                         logistic_sub = logistic_top.find_elements(By.XPATH, ".//div[text()]") #배송 상태 하위
                         
                         for logistic_sub in logistic_sub:
-                            logistic_txt = logistic_sub.text 
+                            logistic_txt = logistic_sub.text
                         
-                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="root"]/div/div[4]/div[2]/div/span[2]') #송장번호 획득
+                        tr_num = self.driver.find_element(By.XPATH,'//*[@id="root"]/div/div[3]/div[2]/div/span[2]') #송장번호 획득
                         tr_txt = tr_num.text
                         
                         ship_step = self.driver.find_element(By.XPATH,'//div[@class="logistic-info-v2--nodeDesc--2U3A3Yt"]') #배송상태 획득
@@ -566,8 +567,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Arrived at customs': '한국통관준비',
                             'Your package arrived at local airport': '한국공항도착',
                             'Arrived at destination country/region sorting center': '한국도착-통관준비',
-                            'Customs clearance started': ('한국통관중' if 'Leaving from departure country/region or Left from departure country/region sorting center or Left from departure country/region' in logistic_txt else '중국수출통관중'),
-                            'Customs clearance complete': ('한국통관완료' if 'Leaving from departure country/region or Left from departure country/region sorting center' in logistic_txt else '중국통관완료'),
+                            'Customs clearance started': ('한국통관중' if ('Leaving from departure country/region' in logistic_txt or 'Left from departure country/region sorting center' in logistic_txt or 'Left from departure country/region' in logistic_txt) else '중국수출통관중'),
+                            'Customs clearance complete': ('한국통관완료' if ('Leaving from departure country/region' in logistic_txt or 'Left from departure country/region sorting center' in logistic_txt) else '중국통관완료'),
                             'Departed from departure country/region': '중국출발',
                             'Flight departure': '중국출발',
                             'Awaiting flight': '중국출발대기',
@@ -578,8 +579,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Package arrived at airport':'중국공항도착',
                             'Export customs clearance complete': '중국수출통관완료',
                             'Export customs clearance started': '중국수출통관중',
-                            'Arrived at line-haul office': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체 도착'),
-                            'Handed over to line-haul': ('한국 입항중' if 'Leaving from departure country/region' or 'Left from departure country/region sorting center' or 'Left from departure country/region' in logistic_txt else '간선운송업체에 인계'),
+                            'Arrived at line-haul office': ('한국 입항중' if ('Leaving from departure country/region' in logistic_txt or 'Left from departure country/region sorting center' in logistic_txt or 'Left from departure country/region' in logistic_txt) else '간선운송업체 도착'),
+                            'Handed over to line-haul': ('한국 입항중' if ('Leaving from departure country/region' in logistic_txt or 'Left from departure country/region sorting center' in logistic_txt or 'Left from departure country/region' in logistic_txt) else '간선운송업체에 인계'),
                             'Arrived at departure transport hub': '중국공항도착',
                             'Your package arrived at airport. Awaiting transit.' : '중국공항도착대기',
                             'Package shipped out from warehouse': '중국내배송출발',

@@ -1,9 +1,9 @@
-pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.4 pyside.py
+pyinstaller -w -F --icon=icon.png  -n tracker_v0.5.6 pyside.py
 버전표기 = 0.기능변경.데이터추가
 
 옵션 여러개 넣기 
 
-pyinstaller -w -F -n tracker_v0.5.5 `
+pyinstaller -w -F -n tracker_v0.5.6 `
 --icon=icon.png `
 --upx-dir="D:\upx-4.2.4-win64" `
 --clean `
