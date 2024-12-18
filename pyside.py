@@ -333,14 +333,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         else:
             try:
-                input_id = self.driver.find_element(By.CLASS_NAME,'comet-input-label-content')
+                input_id = self.driver.find_element(By.CLASS_NAME,'cosmos-input')
                 input_id.click()
                 pyautogui.write(alie_ID, interval=0.03)
                 time.sleep(self.random_sec)
                 input_email = self.driver.find_element(By.CLASS_NAME,'nfm-multiple-email-prefix')
                 input_email.click()
                 time.sleep(self.random_sec)
-                btn_continue = self.driver.find_element(By.CLASS_NAME,'comet-btn')
+                btn_continue = self.driver.find_element(By.CLASS_NAME,'cosmos-btn')
                 btn_continue.click()
                 time.sleep(self.random_sec2)
                 
@@ -349,7 +349,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 pyautogui.write(alie_PW, interval=0.05)
                 time.sleep(self.random_sec)
                 
-                btn_signin = self.driver.find_element(By.CLASS_NAME,'comet-btn-primary')
+                btn_signin = self.driver.find_element(By.CLASS_NAME,'cosmos-btn')
                 btn_signin.click()
                 time.sleep(2)  # 로그인 버튼 클릭 후 충분한 대기 시간
                 
@@ -558,6 +558,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Your package has been received by the local delivery company' : '국내택배사인계',
                             'Received by local delivery company': '국내택배사인계',
                             'Left from destination country/region sorting center': '국내택배사인계',
+                            'Package arrived at local sorting center.':'국내택배사인계',
+                            'Your package has left the sorting center in the destination country/region':'국내택배사인계',
                             'Your package encountered an unforseen issue on its way to the distribution center in the destination country/region': '확인필요-세관통관후 오류',
                             'Departed from customs': '한국세관반출',
                             'Left from customs': '한국세관반출',
@@ -573,6 +575,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Flight departure': '중국출발',
                             'Awaiting flight': '중국출발대기',
                             'Leaving from departure country/region': '중국출발',
+                            'Package leaving origin country/region.':'중국출발',
                             'Left from departure country/region sorting center': '중국출발',
                             'Left from departure country/region': '중국출발',
                             'Flight prepared to departure from country of destination': '중국출발대기',
