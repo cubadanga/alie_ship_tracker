@@ -1,0 +1,29 @@
+- `__init__(self, *args, obj=None, **kwargs)`: `MainWindow` 클래스의 생성자
+  - UI를 초기화한다.
+  - INI 파일에서 설정을 읽어온다.
+  - `update_text_signal`을 `update_text_browser` 슬롯에 연결한다.
+  - 텍스트 브라우저에 메시지를 표시한다.
+- `start(self)`: 배송 추적 프로세스를 시작하는 함수
+  - 사용자 입력 (아이디, 비밀번호, 엑셀 파일 경로)을 가져와 INI 파일에 쓴다.
+  - 체크박스 상태에 따라 엑셀 데이터를 필터링한다.
+  - 엑셀 파일을 읽는다.
+  - 셀레니움 웹 드라이버를 설정한다.
+  - 알리익스프레스 웹사이트에 로그인한다.
+  - 배송된 주문을 파싱한다.
+  - 추적 정보를 가져온다.
+  - 택배 회사를 찾는다.
+  - 결과를 엑셀 파일에 저장한다.
+  - 소요 시간을 표시한다.
+- `filter_state(self)`: 필터 체크박스의 상태를 확인하고 `chk_state` 변수를 설정하는 함수이다.
+- `read_ini(self)`: INI 파일에서 사용자 이름과 비밀번호를 읽어와 해당 라인 편집 필드에 설정하는 함수이다.
+- `write_ini(self, filename, section, key, value)`: INI 파일의 지정된 섹션에 키-값 쌍을 쓰는 함수이다.
+- `read_files(self, exUrl, chk_state, delay_date)`: 엑셀 파일을 읽고, `chk_state` 및 `delay_date` 매개변수에 따라 데이터를 필터링하고, 필터링된 데이터프레임을 반환하는 함수이다.
+- `filedialog_open(self)`: 엑셀 파일을 선택하기 위한 파일 대화 상자를 열고, 파일 경로를 라인 편집에 설정하고, 엑셀 파일을 읽어 유효한지 확인하는 함수이다.
+- `sign_In(self, ship_url, alie_ID, alie_PW)`: 제공된 사용자 이름과 비밀번호를 사용하여 알리익스프레스 웹사이트에 로그인하는 함수이며, 슬라이더 검증을 포함한 로그인 프로세스를 처리한다.
+- `shipped_parcing(self)`: 알리익스프레스에서 배송된 주문 페이지를 파싱하여 주문 ID를 추출하는 함수이다.
+- `ship_stat(self, input_list, orderid_list)`: 입력 목록의 각 주문 ID에 대한 배송 상태를 검색하는 함수이며,
+  - 추적 페이지로 이동한다.
+  - 추적 번호와 상태를 추출한다.
+  - 목록에 추가한다.
+- `find_company(self, tracking_num)`: 추적 번호를 기반으로 택배 회사를 결정하는 함수이다.
+- `update_text_browser(self, message)`: 텍스트 브라우저에 메시지를 추가하는 슬롯이다.

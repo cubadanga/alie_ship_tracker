@@ -645,7 +645,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # 택배사 매핑 딕셔너리 형식
         courier_mapping = {
-            '55': 'CJ대한통운', '56': 'CJ대한통운', '57': 'CJ대한통운', '58': 'CJ대한통운', 
+            '55': 'CJ대한통운', '56': 'CJ대한통운', '57': 'CJ대한통운', '58': 'CJ대한통운', '50': 'CJ대한통운',
             '59': 'CJ대한통운', '75': 'CJ대한통운',
             '51': '한진택배', '80': '한진택배',
             '60': '우체국택배', '68': '우체국택배',
@@ -664,27 +664,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             'EKC': '업체직송', 'UD': '업체직송', 'RU': '업제직송', 'NL': '업체직송', 'TY': '업체직송',
             'PCTN': '범한판토스',
             '1Z': 'UPS',
-            '31': '롯데글로벌로지스'
         }
 
-        def get_company_name(num):
-            if num == '알리주문아님':
+        def get_company_name(trNumber):
+            if trNumber == '알리주문아님':
                 return ''
-            if num.startswith('31'):
-                return 'DHL' if len(num) == 10 else '롯데택배'
-            if num.startswith('7511'):
+            if trNumber.startswith('31'):
+                return 'DHL' if len(trNumber) == 10 else '롯데택배'
+            if trNumber.startswith('7511'):
                 return 'yunda택배'
-            if num.startswith('LPO'):
+            if trNumber.startswith('LPO'):
                 return 'EMS'
             
             for prefix_length in [4, 3, 2]:
-                prefix = num[:prefix_length]
+                prefix = trNumber[:prefix_length]
                 if prefix in courier_mapping:
                     return courier_mapping[prefix]
             
             return ''
 
-        company_name = [get_company_name(num) for num in tracking_num]
+        company_name = [get_company_name(trNumber) for trNumber in tracking_num]
 
         self.update_text_signal.emit("택배사 찾기 완료")
         QCoreApplication.processEvents()
