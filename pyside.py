@@ -111,7 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
         options.add_argument("--disable-images") # 이미지 표시 x
         options.add_argument("--start-maximized") # 브라우저 최대
-        options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36)")
+        options.add_argument("User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36)")
         options.add_experimental_option("excludeSwitches", ['enable-logging', 'enable-automation'])#자동화 되고 있다는 표시 가림
         options.add_argument('--no-sandbox') #웹사이트가 봇 탐지를 위해 사용하는 보안 검사를 우회
         options.add_experimental_option('useAutomationExtension', False) #Chrome의 자동화 확장 프로그램을 비활성화 #셀레니움 자동화 관련 끔
@@ -591,9 +591,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                             'Processing at sorting center': '중국내배송중',
                             'Processing at departure country/region sorting center': '중국내배송중',
                             'Delivery company has picked up the large shipment': '중국내배송중',
+                            'Package left sorting center of origin':'중국내배송중',
                             'Order has been packed into a large shipment and ready for the delivery company to pick up.': '대형화물로픽업준비',
                             'Received by logistics company': '중국택배사집화완료',
                             'Left from warehouse': '현지상품 출하',
+                            'Package left warehouse':'판매자상품 출하',
                             'Shipment info received by warehouse' : '배송정보확인',
                             'Package ready for shipping from warehouse': '상품준비중',
                             'Ready to be shipped by warehouse' : '상품준비중',
@@ -665,6 +667,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             'PCTN': '범한판토스',
             '1Z': 'UPS',
         }
+        
 
         def get_company_name(trNumber):
             if trNumber == '알리주문아님':
